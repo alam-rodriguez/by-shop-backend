@@ -1,0 +1,8 @@
+
+GET http://localhost:3001/api/exist
+
+###
+DELETE http://localhost:3001/api/delete
+
+###
+POST http://localhost:3001/api/seed

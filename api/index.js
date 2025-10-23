@@ -1,0 +1,761 @@
+import express from "express";
+export const app = express();
+import cookieParser from "cookie-parser";
+
+import jwt from "jsonwebtoken";
+
+import { connectionForCreate, connectToDatabase } from "./connection.js";
+import cors from "cors";
+// import connection from "./config-db/connection.js";
+// import { connectionForCreate } from "./connection.js";
+// import connectionForCreate from "./config-db/connection-to-create-db.js";
+
+// import { connectToDatabase } from "./connection.js";
+
+// const connection = await connectToDatabase();
+// async function main() {
+//   // aquí usas `connection` para tus queries
+// }
+
+// main();
+
+// TODO: LAS OPCIONES NO DEBEN DE TENER TIPO, MAS BIEN DEBEN DE INDICAR SI REQUIEREN IMAGEN Y SI REQUIEREN COLOR
+
+// app.use(cors());
+app.use(
+    cors({
+        origin: [
+            "http://localhost:3000",
+            "http://192.168.16.63:3000",
+            "http://192.168.16.63:8080", // <--- IMPORTANTE agregar este
+            "https://f25d1c4a178a.ngrok-free.app",
+            "https://33105c2a514f.ngrok-free.app",
+            "http://192.168.16.63",
+        ],
+
+        credentials: true,
+    })
+);
+app.use(express.json());
+app.use(cookieParser());
+
+// Routes
+import appDataRoutes from "./routes/app-data/appDataRoutes.js";
+import shopsRoutes from "./routes/shops/shopsRoutes.js";
+import usersRoutes from "./routes/users/usersRoutes.js";
+import categoriesRoutes from "./routes/categories/categoriesRoutes.js";
+import articlesRoutes from "./routes/articles/articlesRoutes.js";
+import brandsRoutes from "./routes/brands/brandsRoutes.js";
+import modelsRoutes from "./routes/models/modelsRoutes.js";
+import optionsRoutes from "./routes/options/optionsRoutes.js";
+import paymentMethodRoutes from "./routes/payment-methods/paymentMethodRoutes.js";
+import cartsRoutes from "./routes/carts/cartsRoutes.js";
+import offersRoutes from "./routes/offers/offersRoutes.js";
+import authenticationRoutes from "./routes/authentication/authentication.js";
+import currenciesRoutes from "./routes/currencies/currenciesRoutes.js";
+import paypalRoutes from "./payments/paypalRoutes.js";
+// Middlewares
+// app.use((req, res, next) => {
+//     console.log("Authentication Middleware");
+//     const token = req.cookies.access_token;
+//     console.log("Token recibido:", token);
+//     req.session = { id: null, email: null };
+
+//     if (!token) {
+//         console.log("No hay token");
+//         return next(); // continua sin autenticar
+//     }
+
+//     try {
+//         const data = jwt.verify(token, "secret");
+//         console.log("Payload del token:", data);
+//         req.session.id = data.id;
+//         req.session.email = data.email;
+//         console.log("ID de usuario:", req.session.id);
+//         console.log("Email de usuario:", req.session.email);
+
+//         console.log(data);
+//     } catch (error) {
+//         console.log("Error al verificar token:", error.message);
+//     }
+
+//     next();
+// });
+
+app.use((req, res, next) => {
+    console.log("Authentication Middleware");
+    const access_token = req.cookies.access_token;
+    const refresh_token = req.cookies.refresh_token;
+
+    req.session = { id: null, email: null };
+
+    if (!access_token && !refresh_token) {
+        console.log("No hay access_token ni refresh_token");
+        return next();
+    }
+
+    if (access_token) {
+        console.log("Token recibido:", access_token);
+
+        try {
+            const data = jwt.verify(access_token, "secret");
+            console.log("Payload del access_token:", data);
+            req.session.id = data.id;
+            req.session.email = data.email;
+            return next();
+        } catch (error) {
+            console.log("Error al verificar access_token:", error.message);
+        }
+    }
+
+    try {
+        const data = jwt.verify(refresh_token, "secret_refresh");
+        console.log("Payload del access_token:", data);
+        req.session.id = data.id;
+        req.session.email = data.email;
+        const newAccessToken = jwt.sign({ id: data.id, email: data.email }, "secret", { expiresIn: "1h" });
+        res.cookie("access_token", newAccessToken, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60, // 1 hora
+        });
+    } catch (error) {
+        console.log("Error al verificar refresh_token:", error.message);
+    }
+
+    return next();
+
+    // res.clearCookie("access_token");
+    // res.clearCookie("refresh_token");
+});
+
+// Users routes
+app.use("/api/users", usersRoutes);
+
+// Shops routes
+app.use("/api/shops", shopsRoutes);
+
+// app routes
+app.use("/api/app-data", appDataRoutes);
+app.use("/api/categories", categoriesRoutes);
+app.use("/api/articles", articlesRoutes);
+app.use("/api/brands", brandsRoutes);
+app.use("/api/offers", offersRoutes);
+app.use("/api/models", modelsRoutes);
+app.use("/api/options", optionsRoutes);
+app.use("/api/payment-methods", paymentMethodRoutes);
+app.use("/api/currencies", currenciesRoutes);
+
+// Comprars
+app.use("/api/carts", cartsRoutes);
+
+// Authentication routes
+app.use("/api/auth", authenticationRoutes);
+
+// Authentication routes
+app.use("/api/payments/paypal", paypalRoutes);
+
+const PORT = process.env.PORT || 3001;
+
+app.get("/api/exist", async (req, res) => {
+    try {
+        const connection = await connectToDatabase();
+        const [rows] = await connection.execute(`
+            SELECT SCHEMA_NAME 
+        FROM information_schema.SCHEMATA 
+        WHERE SCHEMA_NAME = 'francarlos_comunicaciones';
+    `);
+        if (rows.length > 0) res.send("existe");
+        else res.send("No existe");
+    } catch (error) {
+        res.send("No existe");
+    }
+});
+
+app.post("/api/seed", async (req, res) => {
+    try {
+        const connectionForCreateDB = await connectionForCreate();
+        await connectionForCreateDB.execute("CREATE DATABASE IF NOT EXISTS francarlos_comunicaciones;");
+        await connectionForCreateDB.end();
+
+        const connection = await connectToDatabase();
+        // await connection.execute("USE francarlos_comunicaciones;");
+        await connection.execute(`
+            CREATE TABLE app_data(
+                app_name VARCHAR(255) NOT NULL,
+                promotions_on_view JSON,
+                commissions JSON
+            );
+        `);
+        await connection.execute(`
+            INSERT INTO app_data(app_name, promotions_on_view, commissions) 
+            VALUES(
+                "FrancarlosApp",
+                "[]",
+                "[]"
+            );
+        `);
+        // await connection.execute(`
+        //     CREATE TABLE shops(
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         name VARCHAR(255) NOT NULL,
+        //         logo VARCHAR(2083) NOT NULL,
+        //         create_date DATETIME NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         status TINYINT NOT NULL
+        //     );
+        // `);
+        await connection.execute(`
+            CREATE TABLE shops(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description VARCHAR(255) NOT NULL,
+                logo VARCHAR(2083) NOT NULL,
+                type TINYINT NOT NULL,
+                status TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE users (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         first_names VARCHAR(255) NOT NULL,
+        //         last_names VARCHAR(255) NOT NULL,
+        //         registration_date DATETIME NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         can_buy TINYINT NOT NULL,
+        //         email VARCHAR(255) NOT NULL,
+        //         password TEXT,
+        //         direction JSON
+        //     );
+        // `);
+
+        await connection.execute(`
+            CREATE TABLE categories(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL, 
+                description VARCHAR(255) NOT NULL, 
+                slug VARCHAR(255) NOT NULL UNIQUE,
+                image VARCHAR(2083),
+                type TINYINT NOT NULL,
+                color VARCHAR(55) NOT NULL,
+                status TINYINT NOT NULL,
+                view TINYINT NOT NULL,
+                created_date DATETIME NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE brands(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL, 
+                description VARCHAR(255) NOT NULL, 
+                image VARCHAR(2083),
+                status TINYINT NOT NULL,
+                created_date DATETIME NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE models(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL, 
+                description VARCHAR(255) NOT NULL,
+                id_brand CHAR(36) NOT NULL, 
+                image VARCHAR(2083),
+                status TINYINT NOT NULL,
+                created_date DATETIME NOT NULL
+            );
+        `);
+        // await connection.execute(`
+        //     CREATE TABLE options (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         name VARCHAR(55) NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         id_option_category CHAR(36) NOT NULL,
+        //         status TINYINT NOT NULL
+        //     );
+        // `);
+        await connection.execute(`
+            CREATE TABLE options (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(55) NOT NULL,
+                require_image TINYINT NOT NULL DEFAULT 0,
+                require_color TINYINT NOT NULL DEFAULT 0,
+                require_quantity TINYINT NOT NULL DEFAULT 0,
+                require_price TINYINT NOT NULL DEFAULT 0,
+                type TINYINT NOT NULL,
+                id_option_category CHAR(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE options_values (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(55) NOT NULL,
+                value VARCHAR(55) NOT NULL,
+                id_option CHAR(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE options_values (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         id_option CHAR(36) NOT NULL,
+        //         value VARCHAR(255) NOT NULL
+        //     );
+        // `);
+
+        //!TODO: TABLA PARA MONEDAS
+        await connection.execute(`
+            CREATE TABLE currencies (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(55) NOT NULL,
+                description VARCHAR(255) NOT NULL,
+                symbol VARCHAR(55) NOT NULL,
+                exchange_rate DECIMAL(10, 6) NOT NULL CHECK (exchange_rate > 0),
+                iso_code CHAR(3) NOT NULL UNIQUE,
+                main_currency TINYINT NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE payment_methods (
+        //         id CHAR(36) NOT NULL,
+        //         name VARCHAR(55) NOT NULL NOT NULL,
+        //         description VARCHAR(255) NOT NULL NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         status TINYINT NOT NULL
+        //     );
+        // `);
+        await connection.execute(`
+            CREATE TABLE payment_methods (
+                id CHAR(36) NOT NULL,
+                name VARCHAR(55) NOT NULL,
+                description VARCHAR(255) NOT NULL,
+                type TINYINT NOT NULL,
+                require_image TINYINT NOT NULL,
+                -- require_bank TINYINT(1) NOT NULL DEFAULT 0,
+                bank_name VARCHAR(55),
+                is_paypal_method TINYINT(1) NOT NULL DEFAULT 0,
+                bank_account INT,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE articles (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                status TINYINT NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                slug VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                id_direct_category CHAR(36) NOT NULL,
+                id_indirect_category CHAR(36) NOT NULL,
+                id_payment_method CHAR(36) NOT NULL,
+                main_image VARCHAR(2083) NOT NULL,
+                id_model CHAR(36) NOT NULL,
+                view TINYINT NOT NULL,
+                price FLOAT NOT NULL,
+                quantity INT NOT NULL, 
+                id_shop CHAR(36) NOT NULL,
+                additional_details TEXT,
+                created_date DATETIME NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE articles_general_categories (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_article CHAR(36) NOT NULL,
+                id_general_category CHAR(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE box_contents (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_article CHAR(36) NOT NULL,
+                id_article_content CHAR(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE images_articles (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_article CHAR(36) NOT NULL,
+                image VARCHAR(2083) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE options_articles (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_article CHAR(36) NOT NULL,
+                id_option CHAR(36) NOT NULL,
+                id_value CHAR(36) NOT NULL,
+                image VARCHAR(2083),
+                quantity INT, 
+                price FLOAT,
+                color VARCHAR(55),
+                status TINYINT NOT NULL
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE articles_specs (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         id_article CHAR(36) NOT NULL,
+        //         id_option CHAR(36) NOT NULL,
+        //         id_value CHAR(36) NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         status TINYINT NOT NULL
+        //     );
+        // `);
+        await connection.execute(`
+            CREATE TABLE articles_specs (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_article CHAR(36) NOT NULL,
+                id_option CHAR(36) NOT NULL,
+                id_value CHAR(36) NOT NULL,
+                is_spec BOOLEAN NOT NULL DEFAULT 0 ,
+                is_measurement BOOLEAN NOT NULL DEFAULT 0,
+                is_highlight BOOLEAN NOT NULL DEFAULT 0,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE general_categories_groups (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                slug VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE general_categories_groups_categories (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                general_category_group_id CHAR(36) NOT NULL,
+                id_category CHAR(36) NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE article_measurements(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_article char(36) NOT NULL,
+                id_option char(36) NOT NULL,
+                id_value char(36) NOT NULL,
+                type TINYINT NOT NULL,
+                status tinyint NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE article_highlighted_paragraphs(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_article char(36) NOT NULL,
+                paragraph TEXT,
+                status tinyint NOT NULL
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE option_categories(
+        //         id char(36) NOT NULL PRIMARY KEY,
+        //         name VARCHAR(255) NOT NULL,
+        //         status TINYINT NOT NULL
+        //     );
+        // `);
+        await connection.execute(`
+            CREATE TABLE options_categories(
+                id char(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE carts(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_article char(36) NOT NULL,
+                id_user char(36) NOT NULL,
+                status TINYINT NOT NULL,
+                quantity INT UNSIGNED NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE cart_item_options(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_article char(36) NOT NULL,
+                id_user char(36) NOT NULL,
+                id_cart char(36) NOT NULL,
+                id_article_option char(36) NOT NULL,
+                status TINYINT NOT NULL,
+                id_option char(36) NOT NULL,
+                id_value char(36) NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE carts_bought(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_user char(36) NOT NULL,
+                status TINYINT NOT NULL,
+                id_pay_method char(36) NOT NULL,
+                image VARCHAR(2083),
+                status_image TINYINT DEFAULT NULL,
+                id_currency char(36) NOT NULL,
+                want_use_address TINYINT NOT NULL DEFAULT 0,
+                id_address char(36) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE carts_bought_items(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_cart_bought char(36) NOT NULL,
+                id_cart char(36) NOT NULL,
+                price_item DECIMAL(10,2) NOT NULL,
+                price_options DECIMAL(10,2) NOT NULL,
+                quantity INT UNSIGNED NOT NULL,
+                total_price DECIMAL(10,2) NOT NULL,
+                id_offer char(36) DEFAULT NULL,
+                percent_discount DECIMAL(5,2) DEFAULT 0.00,
+                total_price_with_discount DECIMAL(10,2) NOT NULL,
+                status TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE carts_bought_items(
+        //         id char(36) NOT NULL PRIMARY KEY,
+        //         id_cart_bought char(36) NOT NULL,
+        //         id_cart char(36) NOT NULL,
+        //         price DECIMAL(10,2) NOT NULL,
+        //         id_offer char(36) DEFAULT NULL,
+        //         percent_discount DECIMAL(5,2) DEFAULT 0.00,
+        //         price_with_discount DECIMAL(10,2) DEFAULT 0.00,
+        //         status TINYINT NOT NULL,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        //     );
+        // `);
+
+        await connection.execute(`
+            CREATE TABLE articles_list_users(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_user char(36) NOT NULL,
+                id_article char(36) NOT NULL,
+                status TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE departments(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL, 
+                short_name VARCHAR(255), 
+                description VARCHAR(255) NOT NULL, 
+                slug VARCHAR(255) NOT NULL UNIQUE,
+                image VARCHAR(2083) NOT NULL,
+                color VARCHAR(55) NOT NULL,
+                status TINYINT NOT NULL,
+                view TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE directs_categories_department(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_department CHAR(36) NOT NULL,
+                id_direct_category CHAR(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE users_articles_views(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_user CHAR(36) NOT NULL,
+                id_article CHAR(36) NOT NULL,
+                id_article_direct_category CHAR(36) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE articles_reviews(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_user CHAR(36) NOT NULL,
+                id_article CHAR(36) NOT NULL,
+                user_public_name VARCHAR(255) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                rating INT NOT NULL,
+                comment TEXT NOT NULL,
+                status TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE articles_reviews_options(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_review char(36) NOT NULL,
+                id_option char(36) NOT NULL,
+                id_value char(36) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE articles_reviews_images(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_review char(36) NOT NULL,
+                image VARCHAR(2083) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE offers(
+                id char(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                percent_discount DECIMAL(5,2),
+                image VARCHAR(2083),
+                date_start DATETIME NOT NULL,
+                date_end DATETIME NOT NULL,
+                status TINYINT NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE offers_categories(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_offer char(36) NOT NULL,
+                id_category char(36) NOT NULL,
+                type_category TINYINT NOT NULL,
+                percent_discount DECIMAL(5,2),
+                status TINYINT NOT NULL DEFAULT 1
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE offers_articles(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_offer char(36) NOT NULL,
+                id_article char(36) NOT NULL,
+                percent_discount DECIMAL(5,2),
+                price DECIMAL(10,2),
+                status TINYINT NOT NULL DEFAULT 1
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE users(
+                id char(36) NOT NULL PRIMARY KEY,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                first_name VARCHAR(255) NOT NULL DEFAULT '',
+                last_name VARCHAR(255) NOT NULL DEFAULT '',
+                type TINYINT NOT NULL DEFAULT 1,
+                can_buy TINYINT NOT NULL DEFAULT 1,
+                want_use_address TINYINT DEFAULT NULL,
+                direction JSON,
+                email_verified TINYINT NOT NULL DEFAULT 0,
+                status TINYINT NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // type 1 = admin
+        // type 2 = subadmin
+
+        await connection.execute(`
+            CREATE TABLE admin_shop(
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_user CHAR(36) NOT NULL,
+                email_user VARCHAR(255) NOT NULL,
+                id_shop CHAR(36) NOT NULL,
+                type TINYINT NOT NULL DEFAULT 1,
+                status TINYINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE users_codes_verification(
+                id char(36) NOT NULL PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                code VARCHAR(6) NOT NULL,
+                expiration_date DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE users_addresses(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_user char(36) NOT NULL,
+                country VARCHAR(255) NOT NULL,
+                full_name VARCHAR(255) NOT NULL,
+                number VARCHAR(15) NOT NULL,
+                address_1 VARCHAR(255) NOT NULL,
+                address_2 VARCHAR(255),
+                neighborhood VARCHAR(255) NOT NULL,
+                province VARCHAR(255) NOT NULL,
+                postal_code VARCHAR(6),
+                preferred_address TINYINT NOT NULL DEFAULT 0,
+                status TINYINT NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE offers_articles_options(
+        //         id char(36) NOT NULL PRIMARY KEY,
+        //         id_offer_article char(36) NOT NULL,
+        //         id_option char(36) NOT NULL,
+        //         id_value char(36) NOT NULL,
+        //         percent_discount DECIMAL(5,2),
+        //         price DECIMAL(10,2),
+        //         status TINYINT(1) NOT NULL DEFAULT 1
+        //     );
+        // `);
+
+        res.send("Base de datos creada");
+    } catch (error) {
+        res.send("No se puede crear la bbdd, error: " + error.message);
+    }
+});
+
+app.delete("/api/delete", async (req, res) => {
+    try {
+        const connection = await connectToDatabase();
+        await connection.execute("DROP DATABASE francarlos_comunicaciones;");
+        res.send("Base de datos eliminada");
+    } catch (error) {
+        res.send("No se puede eliminar la bbdd");
+    }
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

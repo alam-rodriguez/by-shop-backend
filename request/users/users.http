@@ -1,0 +1,52 @@
+GET http://localhost:3001/api/users
+
+###
+GET http://localhost:3001/api/users/222
+
+###
+POST http://localhost:3001/api/users
+content-type: application/json 
+
+{
+  "id": "222566656",
+  "first_names" : "Alam Francisco Luis",
+  "last_names": "Rodriguez rosario",
+  "registration_date" : "2021-09-05",
+  "type": 1,
+  "can_buy": 1,
+  "email": "alamrd2016@gmail.com",
+  "password": "12345678",
+  "direction": "{}"
+}
+
+###
+PUT  http://localhost:3001/api/users/222
+content-type: application/json 
+
+{
+  "id": "222566656",
+  "first_names" : "Luis Miguel ",
+  "last_names": "Rodriguez rosario",
+  "type": 1,
+  "can_buy": 1,
+  "email": "alamrd2016@gmail.com",
+  "password": "12345678",
+  "direction": "{}"
+}
+
+###
+PATCH  http://localhost:3001/api/users/change-type/222566656
+content-type: application/json 
+
+{
+  "type": 5
+}
+
+###
+PATCH  http://localhost:3001/api/users/change-can_buy/222566656
+content-type: application/json 
+
+{
+  "can_buy": 5
+}
+

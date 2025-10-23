@@ -1,0 +1,87 @@
+GET http://localhost:3001/api/app-data
+
+###
+POST http://localhost:3001/api/app-data
+content-type: application/json
+
+{
+    "app_name": "Amazon",
+    "promotions_on_view": [
+      {
+        "id": "1234567",
+        "image": "https://i0.wp.com/www.paradavisual.com/wp-content/uploads/2020/08/Huawei-p40-pro-plus-samsung-galaxy-s20-ultra-iphone-11-pro-max.jpg?fit=1920%2C1080&ssl=1",
+        "link": "/1"
+      },
+      {
+        "id": "12345",
+        "image": "https://th.bing.com/th/id/R.bcd7775fc95dad4db15ea6702fa23775?rik=vMrdvOg6%2b%2fv7mQ&pid=ImgRaw&r=0",
+        "link": "/2"
+      },
+      {
+        "id": "12",
+        "image": "https://th.bing.com/th/id/R.bcd7775fc95dad4db15ea6702fa23775?rik=vMrdvOg6%2b%2fv7mQ&pid=ImgRaw&r=0",
+        "link": "/2"
+      }
+    ],
+    "commissions": [
+      {
+        "min_price": 500,
+        "commission_percentage": "25%"
+      },
+       {
+        "min_price": 5000,
+        "commission_percentage": "18%"
+      },
+       {
+        "min_price": 10000,
+        "commission_percentage": "15%"
+      },
+      {
+        "min_price": 50000,
+        "commission_percentage": "5%"
+      }
+    ]
+}
+
+###
+PUT http://localhost:3001/api/app-data
+content-type: application/json
+
+{
+    "app_name": "Amazon",
+    "promotions_on_view": [
+      {
+        "id": "1234567",
+        "image": "https://i0.wp.com/www.paradavisual.com/wp-content/uploads/2020/08/Huawei-p40-pro-plus-samsung-galaxy-s20-ultra-iphone-11-pro-max.jpg?fit=1920%2C1080&ssl=1",
+        "link": "/1"
+      },
+      {
+        "id": "12345",
+        "image": "https://th.bing.com/th/id/R.bcd7775fc95dad4db15ea6702fa23775?rik=vMrdvOg6%2b%2fv7mQ&pid=ImgRaw&r=0",
+        "link": "/2"
+      },
+      {
+        "id": "12",
+        "image": "https://th.bing.com/th/id/R.bcd7775fc95dad4db15ea6702fa23775?rik=vMrdvOg6%2b%2fv7mQ&pid=ImgRaw&r=0",
+        "link": "/2"
+      }
+    ],
+    "commissions": [
+      {
+        "min_price": 500,
+        "commission_percentage": "25%"
+      },
+       {
+        "min_price": 5000,
+        "commission_percentage": "18%"
+      },
+       {
+        "min_price": 10000,
+        "commission_percentage": "15%"
+      },
+      {
+        "min_price": 50000,
+        "commission_percentage": "5%"
+      }
+    ]
+}

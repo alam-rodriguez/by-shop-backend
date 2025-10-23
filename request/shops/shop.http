@@ -1,0 +1,36 @@
+GET http://localhost:3001/api/shops
+
+###
+GET http://localhost:3001/api/shops/0eabd110-70f3-4eac-8912-dcec4ccca417
+
+###
+POST http://localhost:3001/api/shops
+content-type: application/json 
+
+{
+  "id": "sedftgy-edfffrgt-yg6h7-56ygi",
+  "name": "francarlos comunicaciones",
+  "logo" : "https://play-lh.googleusercontent.com/TpYOXVxhqa-4pCwfAi-kZ8aWME9FIvhCAXkILJHbYYuz-W_OGSTYro4giuNIhiqOgIL7",
+  "create_date": "2025-1-11",
+  "type": 1,
+  "status" : 1
+}
+
+###
+PUT http://localhost:3001/api/shops/sedftgy-edfffrgt-yg6h7-56ygi
+content-type: application/json 
+
+{
+  "name": "francarlos comunicaciones 2",
+  "logo" : "https://play-lh.googleusercontent.com/TpYOXVxhqa-4pCwfAi-kZ8aWME9FIvhCAXkILJHbYYuz-W_OGSTYro4giuNIhiqOgIL7",
+  "type": 1,
+  "status" : 1
+}
+
+###
+PATCH  http://localhost:3001/api/shops/sedftgy-edfffrgt-yg6h7-56ygi
+content-type: application/json 
+
+{
+  "status" : 5
+}

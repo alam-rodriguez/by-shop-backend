@@ -1,0 +1,52 @@
+GET http://localhost:3001/api/categories/direct-categories
+
+###
+GET http://localhost:3001/api/indirect-categories
+
+###
+GET http://localhost:3001/api/general-categories
+
+###
+POST http://localhost:3001/api/categories
+content-type: application/json
+
+{
+  "id": "23456t-tygygttyyg-hhgu",
+  "name" :"Ctegoria",
+  "description" : "Descripcion de la categoria",
+  "slug": "slug-566gg-gg67-779uu",
+  "type": 1,
+  "color": "red",
+  "status": 1,
+  "view": 1,
+  "created_date" : "2025-2-23"
+}
+
+###
+PUT http://localhost:3001/api/directs-categories/23456ttyg
+content-type: application/json
+
+{
+  "nombre" :"Modificada",
+  "color": "red",
+  "status": 1,
+  "view": 1
+}
+
+###
+PATCH  http://localhost:3001/api/directs-categories/change-slug/23456ttyg
+content-type: application/json
+
+{
+  "slug": "nuevo-slug"
+}
+
+###
+PATCH  http://localhost:3001/api/directs-categories/change-status/23456ttyg
+content-type: application/json
+
+{
+  "status": 5
+}
+
+

@@ -1,0 +1,44 @@
+GET http://localhost:3001/api/articles
+
+
+###
+GET http://localhost:3001/api/articles/3456y7ui
+
+###
+POST http://localhost:3001/api/articles
+content-type: application/json
+
+{
+  "id" : "3456-67y7ui-6",
+  "slug" : "telefono-bueno-55",
+  "name" : "Telefono samsung galaxy s21",
+  "status": 1,
+  "main_image": "sdgyufchyft",
+  "images" : "[]",
+  "id_direct_category" : 1,
+  "id_indirect_category": 2,
+  "id_general_categoty": 3,
+  "id_brand" : 66,
+  "id_model": 44,
+  "view": 1,
+  "description": "larger description",
+  "created_date": "2025-6-23"
+}
+
+###
+PUT http://localhost:3001/api/articles/3456y7ui
+content-type: application/json
+
+{
+  "name" : "aifon",
+  "status": 5,
+  "main_image": "sdgyufchyft",
+  "images" : "[]",
+  "id_direct_category" : 5,
+  "id_indirect_category": 6,
+  "id_general_categoty": 7,
+  "id_brand" : 66,
+  "id_model": 44,
+  "view": 5,
+  "description": "larger description"
+}
