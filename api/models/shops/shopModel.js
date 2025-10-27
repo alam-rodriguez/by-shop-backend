@@ -59,3 +59,18 @@ export const updateStatusShop = async (id, status) => {
     const [result] = await connection.execute(`UPDATE shops SET status = ? WHERE id = ?`, [status, id]);
     return result.affectedRows;
 };
+
+export const getShopsForCart = async (idUser) => {
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            s.*
+        FROM carts AS c
+        LEFT JOIN articles AS a ON c.id_article = a.id
+        LEFT JOIN shops AS s ON a.id_shop = s.id
+        WHERE c.id_user = ? AND c.status = 1
+        GROUP BY s.id;`,
+        [idUser]
+    );
+    return rows;
+};

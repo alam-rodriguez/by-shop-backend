@@ -25,20 +25,13 @@ const generateAccessToken = async () => {
 /** 🧾 Crear orden de pago */
 router.post("/create-order", async (req, res) => {
     try {
-        const { return_url, cancel_url } = req.body;
+        const { return_url, cancel_url, purchase_units } = req.body;
         const accessToken = await generateAccessToken();
         const response = await axios.post(
             `${PAYPAL_API}/v2/checkout/orders`,
             {
                 intent: "CAPTURE",
-                purchase_units: [
-                    {
-                        amount: {
-                            currency_code: "USD",
-                            value: "50.00", // 💰 monto del pago
-                        },
-                    },
-                ],
+                purchase_units: purchase_units,
                 application_context: {
                     return_url: return_url, // <--- aquí va la página de éxito en tu frontend
                     cancel_url: cancel_url, // <--- página si el usuario cancela

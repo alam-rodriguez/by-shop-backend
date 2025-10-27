@@ -1,3 +1,4 @@
+import { getCurrenciesById, getMainCurrency } from "../../models/currencies/currenciesModel.js";
 import {
     changeUserCanBuy,
     changeUserType,
@@ -10,6 +11,10 @@ import {
     shopHasAdmin,
     updateUser,
     updateUserEmailVerified,
+    updateUserIdAddressForCart,
+    updateUserIdCurrency,
+    updateUserIdPayMathodForCart,
+    updateUserIdShopForCart,
     updateUserWantUseAddress,
 } from "../../models/users/usersModel.js";
 
@@ -186,6 +191,75 @@ export const getUserShopController = async (req, res) => {
         const userShop = await getUserShop(emailUser);
         if (userShop.length > 0) res.json({ data: userShop[0], message: "User Shop found" });
         else res.json({ data: {}, message: "User Shop Not found" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateUserIdShopForCartController = async (req, res) => {
+    try {
+        const { id_user, id_shop } = req.params;
+        const result = await updateUserIdShopForCart(id_user, id_shop);
+        if (result) res.json({ data: req.body, message: "user shop for cart was changed" });
+        else res.json({ data: req.body, message: "user shop for cart was not changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateUserIdPayMathodForCartController = async (req, res) => {
+    try {
+        const { id_user, id_pay_method } = req.params;
+        const result = await updateUserIdPayMathodForCart(id_user, id_pay_method);
+        if (result) res.json({ data: req.body, message: "user pay method for cart was changed" });
+        else res.json({ data: req.body, message: "user pay method for cart was not changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateUserIdAddressForCartController = async (req, res) => {
+    try {
+        const { id_user, id_address } = req.params;
+        const result = await updateUserIdAddressForCart(id_user, id_address);
+        if (result) res.json({ data: req.body, message: "user address for cart was changed" });
+        else res.json({ data: req.body, message: "user address for cart was not changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateUserIdCurrencyController = async (req, res) => {
+    try {
+        const idUser = req.params.id_user;
+        const idCurrency = req.body.id_currency;
+        const result = await updateUserIdCurrency(idUser, idCurrency);
+        if (result) res.json({ data: req.body, message: "user currency was changed" });
+        else res.json({ data: req.body, message: "user currency was not changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getUserCurrencyOrMainCurrency = async (req, res) => {
+    console.log("--------------------------------------------");
+    console.log("--------------------------------------------");
+    console.log("--------------------------------------------");
+    console.log("--------------------------------------------");
+
+    try {
+        const idUser = req.session.id;
+        const dataUser = await getUserById(idUser);
+
+        let currency;
+
+        console.log(dataUser.id_currency);
+        console.log("--------------------------------------------");
+
+        if (dataUser.id_currency) currency = (await getCurrenciesById(dataUser.id_currency))[0];
+        else currency = (await getMainCurrency())[0];
+
+        res.json({ data: currency, message: "user currency found" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

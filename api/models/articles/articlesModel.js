@@ -27,6 +27,7 @@ export const createArticle = async (
     id_payment_method,
     status,
     view,
+    id_currency,
     price,
     quantity,
     id_shop,
@@ -34,8 +35,8 @@ export const createArticle = async (
     created_date
 ) => {
     const [rows] = await connection.execute(
-        `INSERT INTO articles(id, name, description, slug, main_image, id_direct_category, id_indirect_category, id_model, id_payment_method, status, view, price, quantity, id_shop, additional_details, created_date) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        `INSERT INTO articles(id, name, description, slug, main_image, id_direct_category, id_indirect_category, id_model, id_payment_method, status, view, id_currency, price, quantity, id_shop, additional_details, created_date) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
         [
             id,
             name,
@@ -48,6 +49,7 @@ export const createArticle = async (
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity,
             id_shop,
@@ -70,11 +72,12 @@ export const updateArticle = async (
     id_payment_method,
     status,
     view,
+    id_currency,
     price,
     quantity
 ) => {
     const [rows] = await connection.execute(
-        `UPDATE articles SET name = ?, description = ?, slug = ?, main_image = ?, id_direct_category = ?, id_indirect_category = ?, id_model = ?, id_payment_method = ?, status = ?, view = ?, price = ?, quantity = ? WHERE id = ?
+        `UPDATE articles SET name = ?, description = ?, slug = ?, main_image = ?, id_direct_category = ?, id_indirect_category = ?, id_model = ?, id_payment_method = ?, status = ?, view = ?, id_currency = ?, price = ?, quantity = ? WHERE id = ?
     `,
         [
             name,
@@ -87,6 +90,7 @@ export const updateArticle = async (
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity,
             id,

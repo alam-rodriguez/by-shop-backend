@@ -10,14 +10,26 @@ import {
     createUserShopAdminController,
     createUserShopSubadminController,
     getUserByIdController,
+    getUserCurrencyOrMainCurrency,
     getUsersController,
     getUserShopController,
-    
     updateUserController,
     updateUserEmailVerifiedController,
+    updateUserIdAddressForCartController,
+    updateUserIdCurrencyController,
+    updateUserIdPayMathodForCartController,
+    updateUserIdShopForCartController,
     updateUserWantUseAddressController,
 } from "../../controllers/users/usersController.js";
-import { getAddressByIdController, getUserAddressesController, setUserAddressPreferredController, updateUserAddressController, userAddressCanBePreferredController } from "../../controllers/users/usersAddressesController.js";
+import {
+    getAddressByIdController,
+    getUserAddressesController,
+    setUserAddressPreferredController,
+    updateUserAddressController,
+    userAddressCanBePreferredController,
+} from "../../controllers/users/usersAddressesController.js";
+
+router.get("/get-user-currency-or-main-currency", getUserCurrencyOrMainCurrency);
 
 router.get("/", getUsersController);
 router.get("/:id", getUserByIdController);
@@ -42,6 +54,12 @@ router.post("/set-shop-admin", createUserShopAdminController);
 router.post("/set-shop-sub-admin", createUserShopSubadminController);
 
 router.get("/shop-data/:email_user", getUserShopController);
+
+router.patch("/change-id-shop-for-cart/:id_user/:id_shop", updateUserIdShopForCartController);
+router.patch("/change-id-pay-method-for-cart/:id_user/:id_pay_method", updateUserIdPayMathodForCartController);
+router.patch("/change-id-user-address-for-cart/:id_user/:id_address", updateUserIdAddressForCartController);
+
+router.patch("/change-id-currency-user/:id_user", updateUserIdCurrencyController);
 
 // getUserShopController;
 

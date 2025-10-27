@@ -72,13 +72,17 @@ export const getCartUser = async (id) => {
                 a.main_image AS article_image,
                 COALESCE(GROUP_CONCAT(DISTINCT o.name SEPARATOR '/'), '') AS options,
                 COALESCE(GROUP_CONCAT(DISTINCT ov.value SEPARATOR '/'), '') AS 'values',
-                COALESCE(SUM(oa.price), 0) AS price_options
+                COALESCE(SUM(oa.price), 0) AS price_options,
+                cu.symbol,
+                cu.exchange_rate,
+                cu.iso_code
         FROM carts c
         LEFT JOIN articles a ON (a.id = c.id_article)
         LEFT JOIN cart_item_options co ON (co.id_cart = c.id AND co.status = 1)
         LEFT JOIN options o ON (o.id = co.id_option)
         LEFT JOIN options_values ov ON (ov.id = co.id_value)
         LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
+        LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
         WHERE c.id_user = ? AND c.status IN (1, 2) AND a.status =1
         GROUP BY c.id
         ORDER BY c.created_at DESC
@@ -143,13 +147,66 @@ export const getCartItemsUserForBuy = async (id) => {
                 a.main_image AS article_image,
                 COALESCE(GROUP_CONCAT(DISTINCT o.name SEPARATOR '/'), '') AS options,
                 COALESCE(GROUP_CONCAT(DISTINCT ov.value SEPARATOR '/'), '') AS 'values',
-                COALESCE(SUM(oa.price), 0) AS price_options
+                COALESCE(SUM(oa.price), 0) AS price_options,
+                cu.iso_code,
+                cu.exchange_rate,
+                (
+                    SELECT JSON_OBJECT(
+                        'id', o.id,
+                        'name', o.name,
+                        'percent_discount', o.percent_discount,
+                        'prioridad', o.prioridad,
+                        'date_start', o.date_start,
+                        'date_end', o.date_end
+                    )
+                    FROM (
+                        SELECT o.id, o.name, o.percent_discount, 1 AS prioridad, o.date_start, o.date_end
+                        FROM offers_articles oa
+                        JOIN offers o ON o.id = oa.id_offer
+                        WHERE oa.id_article = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 2 AS prioridad, o.date_start, o.date_end
+                        FROM articles a2
+                        JOIN offers_categories oc ON oc.id_category = a2.id_direct_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE a2.id = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 3 AS prioridad, o.date_start, o.date_end
+                        FROM articles a3
+                        JOIN offers_categories oc ON oc.id_category = a3.id_indirect_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE a3.id = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 4 AS prioridad, o.date_start, o.date_end
+                        FROM articles_general_categories agc
+                        JOIN offers_categories oc ON oc.id_category = agc.id_general_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE agc.id_article = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+                    ) o
+                    ORDER BY prioridad ASC
+                    LIMIT 1
+                ) AS offer
         FROM carts c
         LEFT JOIN articles a ON (a.id = c.id_article)
         LEFT JOIN cart_item_options co ON (co.id_cart = c.id AND co.status = 1)
         LEFT JOIN options o ON (o.id = co.id_option)
         LEFT JOIN options_values ov ON (ov.id = co.id_value)
         LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
+        LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
         WHERE c.id_user = ? AND c.status = 1 AND a.status =1
         GROUP BY c.id
         ORDER BY c.created_at DESC
@@ -159,10 +216,38 @@ export const getCartItemsUserForBuy = async (id) => {
     return rows;
 };
 
-export const createCartBuy = async (id, id_user, status, id_pay_method, image, id_currency, want_use_address, id_address) => {
+export const createCartBuy = async (
+    id,
+    id_user,
+    status,
+    id_pay_method,
+    total,
+    total_discount,
+    paypal_fee,
+    paypal_payment_id,
+    image,
+    id_currency,
+    want_use_address,
+    id_address_user,
+    id_shop_for_address
+) => {
     const [rows] = await connection.execute(
-        `INSERT INTO carts_bought(id, id_user, status, id_pay_method, image, id_currency, want_use_address, id_address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, id_user, status, id_pay_method, image, id_currency, want_use_address, id_address]
+        `INSERT INTO carts_bought(id, id_user, status, id_pay_method, total, total_discount, paypal_fee, paypal_payment_id, image, id_currency, want_use_address, id_address_user, id_shop_for_address) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            id,
+            id_user,
+            status,
+            id_pay_method,
+            total,
+            total_discount,
+            paypal_fee,
+            paypal_payment_id,
+            image,
+            id_currency,
+            want_use_address,
+            id_address_user,
+            id_shop_for_address,
+        ]
     );
     return rows.affectedRows;
 };
@@ -257,8 +342,10 @@ export const getOrders = async (status) => {
                         'article_image', a.main_image,
                         'article_name', a.name,
                         'article_description', a.description,
-                        'article_price', cbi.price,
-                        'article_price_with_discount', cbi.price_with_discount,
+                        'article_price_item', cbi.price_item, 
+                        'article_price_options', cbi.price_options,
+                        'article_total_price', cbi.total_price,
+                        'total_price_with_discount', cbi.total_price_with_discount,
                         'article_percent_discount', cbi.percent_discount,
                         'article_quantity', c.quantity
                     )
@@ -292,8 +379,10 @@ export const getOrdersFromShop = async (idShop, status) => {
                         'article_image', a.main_image,
                         'article_name', a.name,
                         'article_description', a.description,
-                        'article_price', cbi.price,
-                        'article_price_with_discount', cbi.price_with_discount,
+                        'article_price_item', cbi.price_item, 
+                        'article_price_options', cbi.price_options,
+                        'article_total_price', cbi.total_price,
+                        'total_price_with_discount', cbi.total_price_with_discount,
                         'article_percent_discount', cbi.percent_discount,
                         'article_quantity', c.quantity
                     )
@@ -319,15 +408,17 @@ export const getOrdersFromShopAndOrder = async (idShop, idOrder) => {
                 CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
                 JSON_ARRAYAGG(
                     JSON_OBJECT(
+                        'id_cart_bought_item', cbi.id,
                         'id_article', a.id,
                         'article_image', a.main_image,
                         'article_name', a.name,
                         'article_description', a.description,
-                        'article_price', cbi.price,
-                        'article_price_with_discount', cbi.price_with_discount,
+                        'article_price_item', cbi.price_item, 
+                        'article_price_options', cbi.price_options,
+                        'article_total_price', cbi.total_price,
+                        'total_price_with_discount', cbi.total_price_with_discount,
                         'article_percent_discount', cbi.percent_discount,
                         'article_quantity', c.quantity,
-                        'id_cart_bought_item', cbi.id,
                         'status_cart_bought_item', cbi.status
                     )
                 ) AS articles
@@ -365,8 +456,10 @@ export const getOrderById = async (idOrder) => {
                         'article_image', a.main_image,
                         'article_name', a.name,
                         'article_description', a.description,
-                        'article_price', cbi.price,
-                        'article_price_with_discount', cbi.price_with_discount,
+                        'article_price_item', cbi.price_item, 
+                        'article_price_options', cbi.price_options,
+                        'article_total_price', cbi.total_price,
+                        'total_price_with_discount', cbi.total_price_with_discount,
                         'article_percent_discount', cbi.percent_discount,
                         'article_quantity', c.quantity,
                         'id_cart_bought_item', cbi.id,
@@ -410,7 +503,8 @@ export const getOrderByIdCart = async (idCart) => {
                 cb.want_use_address,
                 -- pm.name AS pay_method_name,
                 CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
-                cb.id_address,
+                cb.id_address_user,
+                cb.id_shop_for_address,
                 ua.country,
                 ua.full_name,
                 ua.number,
@@ -419,23 +513,31 @@ export const getOrderByIdCart = async (idCart) => {
                 ua.neighborhood,
                 ua.province,
                 cb.id_pay_method,
+                s.name AS pickup_shop, 
                 pm.name AS name_pay_method,
                 cb.id_currency,
+                cb.total,
+                cb.total_discount,
+                cb.paypal_fee,
+                cb.paypal_payment_id,
                 cu.exchange_rate,
                 cu.main_currency,
                 cu.symbol,
                 cu.iso_code,
-                cbi.total_price
-                -- SUM(cbi.price) AS total_price 
+                cbi.total_price,
+                pm.require_image,
+                cb.image
+                -- SUM(cbi.price) AS total_price  
             FROM carts c
             LEFT JOIN carts_bought_items cbi ON (cbi.id_cart = c.id)
             LEFT JOIN carts_bought cb ON (cb.id = cbi.id_cart_bought)
             LEFT JOIN payment_methods pm ON (pm.id = cb.id_pay_method)
             LEFT JOIN users u ON (u.id = cb.id_user)
-            LEFT JOIN users_addresses ua ON (ua.id = cb.id_address)
+            LEFT JOIN users_addresses ua ON (ua.id = cb.id_address_user)
+            LEFT JOIN shops s ON (s.id = cb.id_shop_for_address)
             LEFT JOIN currencies cu ON (cu.id = cb.id_currency)
             WHERE c.id = ?
-            GROUP BY cb.id, pm.name, cbi.id
+            -- GROUP BY cb.id, pm.name, cbi.id
             LIMIT 1
         `,
         [idCart]

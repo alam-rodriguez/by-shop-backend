@@ -103,3 +103,8 @@ export const getUserInformation = async (id) => {
 //                 expiration_date DATETIME NOT NULL,
 //                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 //             );
+
+export const userHasGoogleId = async (email, googleId) => {
+    const [rows] = await connection.execute(`SELECT * FROM users WHERE email = ? AND google_id != null LIMIT 1`, [email, googleId]);
+    return rows.length > 0;
+};

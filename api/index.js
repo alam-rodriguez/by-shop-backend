@@ -54,6 +54,7 @@ import offersRoutes from "./routes/offers/offersRoutes.js";
 import authenticationRoutes from "./routes/authentication/authentication.js";
 import currenciesRoutes from "./routes/currencies/currenciesRoutes.js";
 import paypalRoutes from "./payments/paypalRoutes.js";
+import searchHistoryRoutes from "./routes/search-history/searchHistoryRoutes.js";
 // Middlewares
 // app.use((req, res, next) => {
 //     console.log("Authentication Middleware");
@@ -154,6 +155,9 @@ app.use("/api/auth", authenticationRoutes);
 
 // Authentication routes
 app.use("/api/payments/paypal", paypalRoutes);
+
+// Search History
+app.use("/api/search-history", searchHistoryRoutes);
 
 const PORT = process.env.PORT || 3001;
 
@@ -356,11 +360,13 @@ app.post("/api/seed", async (req, res) => {
                 description TEXT NOT NULL,
                 id_direct_category CHAR(36) NOT NULL,
                 id_indirect_category CHAR(36) NOT NULL,
+                id_currency CHAR(36) NOT NULL,
                 id_payment_method CHAR(36) NOT NULL,
                 main_image VARCHAR(2083) NOT NULL,
                 id_model CHAR(36) NOT NULL,
                 view TINYINT NOT NULL,
-                price FLOAT NOT NULL,
+                -- price FLOAT NOT NULL,
+                price DECIMAL(10,2) NOT NULL
                 quantity INT NOT NULL, 
                 id_shop CHAR(36) NOT NULL,
                 additional_details TEXT,
@@ -515,14 +521,24 @@ app.post("/api/seed", async (req, res) => {
                 id_user char(36) NOT NULL,
                 status TINYINT NOT NULL,
                 id_pay_method char(36) NOT NULL,
+                total DECIMAL(10,2) NOT NULL,
+                total_discount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                paypal_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                paypal_payment_id VARCHAR(255) DEFAULT NULL,
                 image VARCHAR(2083),
                 status_image TINYINT DEFAULT NULL,
                 id_currency char(36) NOT NULL,
                 want_use_address TINYINT NOT NULL DEFAULT 0,
-                id_address char(36) DEFAULT NULL,
+                id_address_user char(36) DEFAULT NULL,
+                id_shop_for_address char(36) DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+
+        // ALTER TABLE carts_bought
+        // ADD COLUMN total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        // ADD COLUMN total_discount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        // ADD COLUMN paypal_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00;
 
         await connection.execute(`
             CREATE TABLE carts_bought_items(
@@ -672,14 +688,20 @@ app.post("/api/seed", async (req, res) => {
             CREATE TABLE users(
                 id char(36) NOT NULL PRIMARY KEY,
                 email VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
+                password VARCHAR(255),
                 first_name VARCHAR(255) NOT NULL DEFAULT '',
                 last_name VARCHAR(255) NOT NULL DEFAULT '',
                 type TINYINT NOT NULL DEFAULT 1,
                 can_buy TINYINT NOT NULL DEFAULT 1,
                 want_use_address TINYINT DEFAULT NULL,
+                id_shop_for_cart CHAR(36) DEFAULT NULL,
+                id_address_for_cart CHAR(36) DEFAULT NULL,
+                id_payment_method_for_cart CHAR(36) DEFAULT NULL,
+                id_currency CHAR(36) DEFAULT NULL,
                 direction JSON,
                 email_verified TINYINT NOT NULL DEFAULT 0,
+                google_id VARCHAR(50),
+                picture VARCHAR(2083),
                 status TINYINT NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -723,6 +745,17 @@ app.post("/api/seed", async (req, res) => {
                 province VARCHAR(255) NOT NULL,
                 postal_code VARCHAR(6),
                 preferred_address TINYINT NOT NULL DEFAULT 0,
+                status TINYINT NOT NULL DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE search_history(
+                id char(36) NOT NULL PRIMARY KEY,
+                id_user char(36) NOT NULL,
+                id_article char(36) NOT NULL,
+                seeker_phrase varchar(255) not null,
                 status TINYINT NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );

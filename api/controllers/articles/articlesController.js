@@ -78,6 +78,7 @@ export const createArticleController = async (req, res) => {
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity,
             id_shop,
@@ -96,6 +97,7 @@ export const createArticleController = async (req, res) => {
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity,
             id_shop,
@@ -123,6 +125,7 @@ export const updateArticleController = async (req, res) => {
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity,
         } = req.body;
@@ -138,6 +141,7 @@ export const updateArticleController = async (req, res) => {
             id_payment_method,
             status,
             view,
+            id_currency,
             price,
             quantity
         );

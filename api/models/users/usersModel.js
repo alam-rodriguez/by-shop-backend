@@ -19,11 +19,25 @@ export const createUser = async (id, first_names, last_names, registration_date,
     return result.affectedRows;
 };
 
+export const createUserFromGoogle = async (id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified) => {
+    const [result] = await connection.execute(
+        `INSERT INTO users(id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified]
+    );
+    return result.affectedRows;
+};
+
 export const updateUser = async (first_names, last_names, type, can_buy, email, password, direction, id) => {
     const [result] = await connection.execute(
         `UPDATE users SET first_names = ?, last_names = ?, type = ?, can_buy = ?, email = ?, password = ?, direction = ? WHERE id = ?`,
         [first_names, last_names, type, can_buy, email, password, direction, id]
     );
+    return result.affectedRows > 0;
+};
+
+export const updateUserGoogleId = async (email, googleId) => {
+    const [result] = await connection.execute(`UPDATE users SET google_id = ? WHERE id = ?`, [googleId, email]);
     return result.affectedRows > 0;
 };
 
@@ -123,4 +137,24 @@ export const getUserShop = async (emailUser) => {
         [emailUser]
     );
     return rows;
+};
+
+export const updateUserIdShopForCart = async (idUser, idShop) => {
+    const [rows] = await connection.execute(`UPDATE users SET id_shop_for_cart = ? WHERE id = ?`, [idShop, idUser]);
+    return rows.affectedRows > 0;
+};
+
+export const updateUserIdPayMathodForCart = async (idUser, idPayMethod) => {
+    const [rows] = await connection.execute(`UPDATE users SET id_payment_method_for_cart = ? WHERE id = ?`, [idPayMethod, idUser]);
+    return rows.affectedRows > 0;
+};
+
+export const updateUserIdAddressForCart = async (idUser, idAddress) => {
+    const [rows] = await connection.execute(`UPDATE users SET id_address_for_cart = ? WHERE id = ?`, [idAddress, idUser]);
+    return rows.affectedRows > 0;
+};
+
+export const updateUserIdCurrency = async (idUser, idCurrency) => {
+    const [rows] = await connection.execute(`UPDATE users SET id_currency = ? WHERE id = ?`, [idCurrency, idUser]);
+    return rows.affectedRows > 0;
 };

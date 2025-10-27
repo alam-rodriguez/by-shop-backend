@@ -129,8 +129,36 @@ export const getCartItemsUserSavedForLaterController = async (req, res) => {
 
 export const createCartBuyController = async (req, res) => {
     try {
-        const { id, id_user, status, id_pay_method, image, id_currency, want_use_address, id_address } = req.body;
-        const cart = await createCartBuy(id, id_user, status, id_pay_method, image, id_currency, want_use_address, id_address);
+        const {
+            id,
+            id_user,
+            status,
+            id_pay_method,
+            total,
+            total_discount,
+            paypal_fee,
+            paypal_payment_id,
+            image,
+            id_currency,
+            want_use_address,
+            id_address_user,
+            id_shop_for_address,
+        } = req.body;
+        const cart = await createCartBuy(
+            id,
+            id_user,
+            status,
+            id_pay_method,
+            total,
+            total_discount,
+            paypal_fee,
+            paypal_payment_id,
+            image,
+            id_currency,
+            want_use_address,
+            id_address_user,
+            id_shop_for_address
+        );
         if (cart > 0) res.status(201).json({ data: req.body, message: "Cart Buy Created" });
         else res.json({ data: req.body, message: "Cart Buy Not Created" });
     } catch (error) {
