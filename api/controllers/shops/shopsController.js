@@ -34,8 +34,46 @@ export const getShopsByIdController = async (req, res) => {
 // };
 export const createShopController = async (req, res) => {
     try {
-        const { id, name, description, logo, type, status } = req.body;
-        const shop = await createShop(id, name, description, logo, type, status);
+        const {
+            id,
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status,
+        } = req.body;
+        const shop = await createShop(
+            id,
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status
+        );
         if (shop == 1) res.status(201).json({ data: req.body, message: "Shop Created" });
         else res.json({ data: {}, message: "Shop Not Created" });
     } catch (error) {
@@ -46,8 +84,45 @@ export const createShopController = async (req, res) => {
 export const updateShopController = async (req, res) => {
     try {
         const id = req.params.id;
-        const { name, logo, type, status } = req.body;
-        const shop = await updateShop(id, name, logo, type, status);
+        const {
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status,
+        } = req.body;
+        const shop = await updateShop(
+            id,
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status
+        );
         if (shop == 1) res.json({ data: req.body, message: "Shop Updated" });
         else res.json({ data: {}, message: "Shop Not Found" });
     } catch (error) {

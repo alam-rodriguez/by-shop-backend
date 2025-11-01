@@ -70,7 +70,8 @@ export const getUserInformation = async (id) => {
                 'preferred_address', ua.preferred_address,
                 'status', ua.status,
                 'created_at', ua.created_at
-            ) AS address
+            ) AS address,
+            ut.name AS user_type_name
         FROM users c
         LEFT JOIN users_addresses ua 
             ON ua.id = (
@@ -80,6 +81,7 @@ export const getUserInformation = async (id) => {
                 ORDER BY preferred_address DESC, created_at DESC 
                 LIMIT 1
             )
+        LEFT JOIN user_types AS ut ON (ut.id = c.user_type_id)
         WHERE c.id = ? AND c.email_verified = 1
         LIMIT 1;
     `,

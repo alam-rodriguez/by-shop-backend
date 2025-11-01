@@ -35,23 +35,154 @@ export const getShopsById = async (id) => {
 //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 // );
 
-export const createShop = async (id, name, description, logo, type, status) => {
+// CREATE TABLE shops(
+//                 id CHAR(36) NOT NULL PRIMARY KEY,
+//                 name VARCHAR(255) NOT NULL,
+//                 description VARCHAR(255) NOT NULL,
+//                 logo VARCHAR(2083) NOT NULL,
+//                 type TINYINT NOT NULL,
+//                 country_id char(36) NOT NULL,
+//                 province_id char(36) NOT NULL,
+//                 municipality_id char(36) NOT NULL,
+//                 district_id char(36),
+//                 neighborhood_id char(36) NOT NULL,
+//                 street VARCHAR(255) NOT NULL,
+//                 local_number VARCHAR(50),
+//                 address_details VARCHAR(255),
+//                 postal_code VARCHAR(6),
+//                 phone_number VARCHAR(20) NOT NULL,
+//                 latitude DECIMAL(10,8) NOT NULL,
+//                 longitude DECIMAL(11,8) NOT NULL,
+//                 status TINYINT NOT NULL,
+//                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//             );
+
+export const createShop = async (
+    id,
+    name,
+    description,
+    logo,
+    type,
+    country_id,
+    province_id,
+    municipality_id,
+    district_id,
+    neighborhood_id,
+    street,
+    local_number,
+    address_details,
+    postal_code,
+    phone_number,
+    latitude,
+    longitude,
+    status
+) => {
     const [result] = await connection.execute(
-        `INSERT INTO shops(id, name, description, logo, type, status) 
-            VALUES( ?, ?, ?, ?, ?, ?)`,
-        [id, name, description, logo, type, status]
+        `INSERT INTO shops(id,
+    name,
+    description,
+    logo,
+    type,
+    country_id,
+    province_id,
+    municipality_id,
+    district_id,
+    neighborhood_id,
+    street,
+    local_number,
+    address_details,
+    postal_code,
+    phone_number,
+    latitude,
+    longitude,
+    status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            id,
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status,
+        ]
     );
     return result.affectedRows;
 };
 
-export const updateShop = async (id, name, logo, type, status) => {
-    const [result] = await connection.execute(`UPDATE shops SET name = ?, logo = ?, type = ?, status = ? WHERE id = ?`, [
-        name,
-        logo,
-        type,
-        status,
-        id,
-    ]);
+export const updateShop = async (
+    id,
+    name,
+    description,
+    logo,
+    type,
+    country_id,
+    province_id,
+    municipality_id,
+    district_id,
+    neighborhood_id,
+    street,
+    local_number,
+    address_details,
+    postal_code,
+    phone_number,
+    latitude,
+    longitude,
+    status
+) => {
+    const [result] = await connection.execute(
+        `UPDATE shops 
+      SET 
+        name = ?,
+        description = ?,
+        logo = ?,
+        type = ?,
+        country_id = ?,
+        province_id = ?,
+        municipality_id = ?,
+        district_id = ?,
+        neighborhood_id = ?,
+        street = ?,
+        local_number = ?,
+        address_details = ?,
+        postal_code = ?,
+        phone_number = ?,
+        latitude = ?,
+        longitude = ?,
+        status = ?
+      WHERE id = ?`,
+        [
+            name,
+            description,
+            logo,
+            type,
+            country_id,
+            province_id,
+            municipality_id,
+            district_id,
+            neighborhood_id,
+            street,
+            local_number,
+            address_details,
+            postal_code,
+            phone_number,
+            latitude,
+            longitude,
+            status,
+            id,
+        ]
+    );
     return result.affectedRows;
 };
 

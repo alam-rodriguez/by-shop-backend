@@ -6,7 +6,16 @@ export const getUsers = async () => {
 };
 
 export const getUserById = async (id) => {
-    const [rows] = await connection.execute("SELECT * FROM users WHERE id = ?", [id]);
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            u.*,
+            ut.name AS user_type_name
+        FROM users AS u
+        LEFT JOIN user_types AS ut ON (ut.id = u.user_type_id) 
+        WHERE u.id = ?`,
+        [id]
+    );
     return rows[0];
 };
 
@@ -50,6 +59,70 @@ export const changeUserCanBuy = async (id, canBuy) => {
     return result.affectedRows > 0;
 };
 
+// export const createUserAddress = async (
+//     id,
+//     id_user,
+//     country,
+//     full_name,
+//     number,
+//     address_1,
+//     address_2,
+//     neighborhood,
+//     province,
+//     postal_code,
+//     preferred_address,
+//     status,
+//     address_details,
+//     country_id,
+//     house_number,
+//     latitude,
+//     longitude,
+//     municipality_id,
+//     neighborhood_id,
+//     phone_number,
+//     province_id,
+//     street
+// ) => {
+//     const [result] = await connection.execute(
+//         `INSERT INTO users_addresses(id, id_user, country, full_name, number, address_1, address_2, neighborhood, province, postal_code, preferred_address, status, address_details,
+//             country_id,
+//             house_number,
+//             latitude,
+//             longitude,
+//             municipality_id,
+//             neighborhood_id,
+//             phone_number,
+//             province_id,
+//             street,)
+//         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)`,
+//         [
+//             id,
+//             id_user,
+//             country,
+//             full_name,
+//             number,
+//             address_1,
+//             address_2,
+//             neighborhood,
+//             province,
+//             postal_code,
+//             preferred_address,
+//             status,
+//             address_details,
+//             country_id,
+//             house_number,
+//             latitude,
+//             longitude,
+//             municipality_id,
+//             neighborhood_id,
+//             phone_number,
+//             province_id,
+//             street,
+//         ]
+//     );
+//     return result.affectedRows > 0;
+// };
+
 export const createUserAddress = async (
     id,
     id_user,
@@ -62,12 +135,48 @@ export const createUserAddress = async (
     province,
     postal_code,
     preferred_address,
-    status
+    status,
+    address_details,
+    country_id,
+    house_number,
+    latitude,
+    longitude,
+    municipality_id,
+    neighborhood_id,
+    phone_number,
+    province_id,
+    street
 ) => {
     const [result] = await connection.execute(
-        `INSERT INTO users_addresses(id, id_user, country, full_name, number, address_1, address_2, neighborhood, province, postal_code, preferred_address, status)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, id_user, country, full_name, number, address_1, address_2, neighborhood, province, postal_code, preferred_address, status]
+        `INSERT INTO users_addresses(
+            id, id_user, country, full_name, number, address_1, address_2, neighborhood, province, postal_code, 
+            preferred_address, status, address_details, country_id, house_number, latitude, longitude, municipality_id, 
+            neighborhood_id, phone_number, province_id, street
+        ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            id,
+            id_user,
+            country,
+            full_name,
+            number,
+            address_1,
+            address_2,
+            neighborhood,
+            province,
+            postal_code,
+            preferred_address,
+            status,
+            address_details,
+            country_id,
+            house_number,
+            latitude,
+            longitude,
+            municipality_id,
+            neighborhood_id,
+            phone_number,
+            province_id,
+            street,
+        ]
     );
     return result.affectedRows > 0;
 };
@@ -156,5 +265,10 @@ export const updateUserIdAddressForCart = async (idUser, idAddress) => {
 
 export const updateUserIdCurrency = async (idUser, idCurrency) => {
     const [rows] = await connection.execute(`UPDATE users SET id_currency = ? WHERE id = ?`, [idCurrency, idUser]);
+    return rows.affectedRows > 0;
+};
+
+export const updateUserTypeId = async (idUser, userTypeId) => {
+    const [rows] = await connection.execute(`UPDATE users SET user_type_id = ? WHERE id = ?`, [userTypeId, idUser]);
     return rows.affectedRows > 0;
 };

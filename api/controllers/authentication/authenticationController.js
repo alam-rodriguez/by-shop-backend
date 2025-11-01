@@ -187,10 +187,8 @@ export const getEmailVerificationCodeController = async (req, res) => {
 };
 
 export const getUserInformationController = async (req, res) => {
-    console.log("buscar data");
     try {
         const id = req.session.id;
-        console.log(id);
         const userInformation = await getUserInformation(id);
         if (userInformation.length == 0) return res.status(204).json({ data: {}, message: "user Information Not Found" });
 

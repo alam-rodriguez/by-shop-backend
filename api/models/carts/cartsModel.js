@@ -225,6 +225,8 @@ export const createCartBuy = async (
     total_discount,
     paypal_fee,
     paypal_payment_id,
+    delivery_cost,
+    delivery_distance,
     image,
     id_currency,
     want_use_address,
@@ -232,7 +234,7 @@ export const createCartBuy = async (
     id_shop_for_address
 ) => {
     const [rows] = await connection.execute(
-        `INSERT INTO carts_bought(id, id_user, status, id_pay_method, total, total_discount, paypal_fee, paypal_payment_id, image, id_currency, want_use_address, id_address_user, id_shop_for_address) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO carts_bought(id, id_user, status, id_pay_method, total, total_discount, paypal_fee, paypal_payment_id, delivery_cost, delivery_distance, image, id_currency, want_use_address, id_address_user, id_shop_for_address) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             id,
             id_user,
@@ -242,6 +244,8 @@ export const createCartBuy = async (
             total_discount,
             paypal_fee,
             paypal_payment_id,
+            delivery_cost,
+            delivery_distance,
             image,
             id_currency,
             want_use_address,
@@ -336,6 +340,8 @@ export const getOrders = async (status) => {
                 CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
                 pm.name AS pay_method_name,
                 pm.require_image AS require_image,
+                cu.name AS currency,
+                cu.iso_code AS currency_iso_code,
                 JSON_ARRAYAGG(
                     JSON_OBJECT(
                         'id_article', a.id,
@@ -356,10 +362,49 @@ export const getOrders = async (status) => {
             LEFT JOIN articles a ON (c.id_article = a.id)
             LEFT JOIN users u ON (u.id = cbt.id_user)
             LEFT JOIN payment_methods pm ON (pm.id = cbt.id_pay_method)
+            LEFT JOIN currencies cu ON (cu.id = cbt.id_currency)
             WHERE cbt.status IN (${statusQuery})
             GROUP BY cbt.id, pm.name, pm.require_image
+            ORDER BY cbt.created_at DESC
         `,
         [...statusArray]
+    );
+    return rows;
+};
+
+export const getOrdersByresponsibleShop = async (idShop, status) => {
+    const statusArray = status.split(",");
+    const statusQuery = statusArray.map(() => "?").join(",");
+    const [rows] = await connection.execute(
+        `SELECT 
+                cbt.*,
+                CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
+                pm.name AS pay_method_name,
+                pm.require_image AS require_image,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id_article', a.id,
+                        'article_image', a.main_image,
+                        'article_name', a.name,
+                        'article_description', a.description,
+                        'article_price_item', cbi.price_item, 
+                        'article_price_options', cbi.price_options,
+                        'article_total_price', cbi.total_price,
+                        'total_price_with_discount', cbi.total_price_with_discount,
+                        'article_percent_discount', cbi.percent_discount,
+                        'article_quantity', c.quantity
+                    )
+                ) AS articles
+            FROM carts_bought cbt
+            LEFT JOIN carts_bought_items cbi ON (cbi.id_cart_bought = cbt.id)
+            LEFT JOIN carts c ON (c.id = cbi.id_cart)
+            LEFT JOIN articles a ON (c.id_article = a.id)
+            LEFT JOIN users u ON (u.id = cbt.id_user)
+            LEFT JOIN payment_methods pm ON (pm.id = cbt.id_pay_method)
+            WHERE cbt.id_shop_for_address = ? AND cbt.status IN (${statusQuery})
+            GROUP BY cbt.id, pm.name, pm.require_image
+        `,
+        [idShop, ...statusArray]
     );
     return rows;
 };
@@ -395,6 +440,7 @@ export const getOrdersFromShop = async (idShop, status) => {
             LEFT JOIN payment_methods pm ON (pm.id = cbt.id_pay_method)
             WHERE cbt.status IN (${statusQuery})
             GROUP BY cbt.id, pm.name, pm.require_image
+            ORDER BY cbt.created_at DESC
         `,
         [idShop, ...statusArray]
     );
@@ -520,13 +566,23 @@ export const getOrderByIdCart = async (idCart) => {
                 cb.total_discount,
                 cb.paypal_fee,
                 cb.paypal_payment_id,
+                cb.delivery_cost,
+                cb.delivery_distance,
                 cu.exchange_rate,
                 cu.main_currency,
                 cu.symbol,
                 cu.iso_code,
                 cbi.total_price,
                 pm.require_image,
-                cb.image
+                pm.is_paypal_method,
+                cb.paypal_payment_id,
+                cb.status_image,
+                cb.image,
+                CONCAT_WS(' - ', p.name, m.name, n.name) AS address,
+                p.name AS province,
+                m.name AS municipalitie,
+                n.name AS neighborhood,
+                ua.street
                 -- SUM(cbi.price) AS total_price  
             FROM carts c
             LEFT JOIN carts_bought_items cbi ON (cbi.id_cart = c.id)
@@ -536,6 +592,11 @@ export const getOrderByIdCart = async (idCart) => {
             LEFT JOIN users_addresses ua ON (ua.id = cb.id_address_user)
             LEFT JOIN shops s ON (s.id = cb.id_shop_for_address)
             LEFT JOIN currencies cu ON (cu.id = cb.id_currency)
+            LEFT JOIN countries AS ca ON(ca.id = ua.country_id)
+            LEFT JOIN provinces AS p ON(p.id = ua.province_id)
+            LEFT JOIN municipalities AS m ON(m.id = ua.municipality_id)
+            LEFT JOIN neighborhoods AS n ON(n.id = ua.neighborhood_id)
+
             WHERE c.id = ?
             -- GROUP BY cb.id, pm.name, cbi.id
             LIMIT 1

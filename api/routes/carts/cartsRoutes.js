@@ -16,6 +16,7 @@ import {
     getLastCartItemBoughtController,
     getOrderByIdCartController,
     getOrderByIdController,
+    getOrdersByresponsibleShopController,
     getOrdersController,
     getOrdersFromShopAndOrderController,
     getOrdersFromShopController,
@@ -29,6 +30,8 @@ import {
 import { createCartItemOptionController, updateCartItemOptionController } from "../../controllers/carts/cartsController.js";
 
 router.get("/orders", getOrdersController);
+router.get("/orders/responsible-shop/:id_shop", getOrdersByresponsibleShopController);
+
 router.get("/orders/shop/:id_shop", getOrdersFromShopController);
 router.get("/orders/shop/:id_shop/:id_order", getOrdersFromShopAndOrderController);
 router.get("/orders/:id_order", getOrderByIdController);

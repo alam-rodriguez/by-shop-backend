@@ -55,6 +55,8 @@ import authenticationRoutes from "./routes/authentication/authentication.js";
 import currenciesRoutes from "./routes/currencies/currenciesRoutes.js";
 import paypalRoutes from "./payments/paypalRoutes.js";
 import searchHistoryRoutes from "./routes/search-history/searchHistoryRoutes.js";
+import deliveriesRoutes from "./routes/delivery/deliveryRoutes.js";
+import locationsRoutes from "./routes/locations/locationsRoutes.js";
 // Middlewares
 // app.use((req, res, next) => {
 //     console.log("Authentication Middleware");
@@ -150,6 +152,9 @@ app.use("/api/currencies", currenciesRoutes);
 // Comprars
 app.use("/api/carts", cartsRoutes);
 
+// Comprars
+app.use("/api/deliveries", deliveriesRoutes);
+
 // Authentication routes
 app.use("/api/auth", authenticationRoutes);
 
@@ -158,6 +163,9 @@ app.use("/api/payments/paypal", paypalRoutes);
 
 // Search History
 app.use("/api/search-history", searchHistoryRoutes);
+
+// Search History
+app.use("/api/locations", locationsRoutes);
 
 const PORT = process.env.PORT || 3001;
 
@@ -209,6 +217,18 @@ app.post("/api/seed", async (req, res) => {
         //         status TINYINT NOT NULL
         //     );
         // `);
+        // await connection.execute(`
+        //     CREATE TABLE shops(
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         name VARCHAR(255) NOT NULL,
+        //         description VARCHAR(255) NOT NULL,
+        //         logo VARCHAR(2083) NOT NULL,
+        //         type TINYINT NOT NULL,
+        //         status TINYINT NOT NULL,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        //     );
+        // `);
+
         await connection.execute(`
             CREATE TABLE shops(
                 id CHAR(36) NOT NULL PRIMARY KEY,
@@ -216,6 +236,18 @@ app.post("/api/seed", async (req, res) => {
                 description VARCHAR(255) NOT NULL,
                 logo VARCHAR(2083) NOT NULL,
                 type TINYINT NOT NULL,
+                country_id char(36) NOT NULL,
+                province_id char(36) NOT NULL,
+                municipality_id char(36) NOT NULL,
+                district_id char(36),
+                neighborhood_id char(36) NOT NULL,
+                street VARCHAR(255) NOT NULL,
+                local_number VARCHAR(50),
+                address_details VARCHAR(255),
+                postal_code VARCHAR(6),
+                phone_number VARCHAR(20) NOT NULL,
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
                 status TINYINT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -525,6 +557,8 @@ app.post("/api/seed", async (req, res) => {
                 total_discount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
                 paypal_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
                 paypal_payment_id VARCHAR(255) DEFAULT NULL,
+                delivery_cost DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                delivery_distance DECIMAL(8,2) DEFAULT 0.00,
                 image VARCHAR(2083),
                 status_image TINYINT DEFAULT NULL,
                 id_currency char(36) NOT NULL,
@@ -692,6 +726,7 @@ app.post("/api/seed", async (req, res) => {
                 first_name VARCHAR(255) NOT NULL DEFAULT '',
                 last_name VARCHAR(255) NOT NULL DEFAULT '',
                 type TINYINT NOT NULL DEFAULT 1,
+                user_type_id char(36),
                 can_buy TINYINT NOT NULL DEFAULT 1,
                 want_use_address TINYINT DEFAULT NULL,
                 id_shop_for_cart CHAR(36) DEFAULT NULL,
@@ -732,21 +767,53 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
+        // await connection.execute(`
+        //     CREATE TABLE users_addresses(
+        //         id char(36) NOT NULL PRIMARY KEY,
+        //         id_user char(36) NOT NULL,
+        //         country VARCHAR(255) NOT NULL,
+        //         full_name VARCHAR(255) NOT NULL,
+        //         number VARCHAR(15) NOT NULL,
+        //         address_1 VARCHAR(255) NOT NULL,
+        //         address_2 VARCHAR(255),
+        //         neighborhood VARCHAR(255) NOT NULL,
+        //         province VARCHAR(255) NOT NULL,
+        //         postal_code VARCHAR(6),
+        //         preferred_address TINYINT NOT NULL DEFAULT 0,
+        //         status TINYINT NOT NULL DEFAULT 1,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        //     );
+        // `);
+
         await connection.execute(`  
             CREATE TABLE users_addresses(
                 id char(36) NOT NULL PRIMARY KEY,
                 id_user char(36) NOT NULL,
-                country VARCHAR(255) NOT NULL,
-                full_name VARCHAR(255) NOT NULL,
-                number VARCHAR(15) NOT NULL,
-                address_1 VARCHAR(255) NOT NULL,
-                address_2 VARCHAR(255),
-                neighborhood VARCHAR(255) NOT NULL,
-                province VARCHAR(255) NOT NULL,
+                country_id char(36) NOT NULL,
+                province_id char(36) NOT NULL,
+                municipality_id char(36) NOT NULL,
+                district_id char(36),
+                neighborhood_id char(36) NOT NULL,
+                street VARCHAR(255) NOT NULL,
+                house_number VARCHAR(50),
+                address_details VARCHAR(255),
                 postal_code VARCHAR(6),
+                full_name VARCHAR(255) NOT NULL,
+                phone_number VARCHAR(20) NOT NULL,
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
                 preferred_address TINYINT NOT NULL DEFAULT 0,
                 status TINYINT NOT NULL DEFAULT 1,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                -- Estos campos de aqui ya no son requeridos
+                country VARCHAR(255),
+                number VARCHAR(15),
+                address_1 VARCHAR(255),
+                address_2 VARCHAR(255),
+                neighborhood VARCHAR(255),
+                province VARCHAR(255)
             );
         `);
 
@@ -758,6 +825,101 @@ app.post("/api/seed", async (req, res) => {
                 seeker_phrase varchar(255) not null,
                 status TINYINT NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE user_types (
+                id CHAR(36) NOT NULL PRIMARY KEY,                  -- UUID del tipo de usuario
+                name VARCHAR(100) NOT NULL,                        -- Nombre del tipo (Administrador, Cliente, etc.)
+                description VARCHAR(255) NULL,                     -- Descripción opcional
+                status TINYINT DEFAULT 1,                       -- 1 = activo, 0 = inactivo
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Fecha de creación
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Fecha de actualización
+            );
+        `);
+
+        // TODO: ESTA TABLA ES PARA PUBLICAR LAS ORDENES PARA LOS DELIVERIES
+        await connection.execute(`  
+            CREATE TABLE deliveries_orders (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_delivery CHAR(36),
+                id_cart_bouth CHAR(36) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE countries (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                iso_code VARCHAR(10),
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE provinces (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                country_id CHAR(36) NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE municipalities (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                province_id CHAR(36) NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                latitude DECIMAL(10,8) NULL,
+                longitude DECIMAL(11,8) NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE districts (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                municipality_id INT NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                latitude DECIMAL(10,8) NULL,
+                longitude DECIMAL(11,8) NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE neighborhoods (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                municipality_id CHAR(36) NOT NULL,
+                district_id CHAR(36) NULL,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             );
         `);
 

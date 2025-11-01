@@ -15,6 +15,7 @@ import {
     updateUserIdCurrency,
     updateUserIdPayMathodForCart,
     updateUserIdShopForCart,
+    updateUserTypeId,
     updateUserWantUseAddress,
 } from "../../models/users/usersModel.js";
 
@@ -84,10 +85,50 @@ export const changeUserCanBuyController = async (req, res) => {
     }
 };
 
+// address_2: "";
+// address_details: "";
+// country_id: "f4f813a9-1624-4ccd-9683-9af35d32b138";
+// full_name: "Alam Rodriguez";
+// house_number: undefined;
+// id: "0e09e627-709d-49f1-aed6-e80b4c9ff82c";
+// id_user: "ffc2f798-dd56-4aa7-8441-0a73addf0b65";
+// latitude: 18.5577;
+// longitude: -69.7012;
+// municipality_id: "c7b5433b-2cc4-4266-bb6c-7ada9b0a62ce";
+// neighborhood_id: "4b325336-2cb1-4044-9c78-6e7855b5f697";
+// phone_number: "18293198834";
+// postal_code: undefined;
+// preferred_address: true;
+// province_id: "833d1e07-2857-4b97-9853-20fef6083288";
+// status: 1;
+// street: "General jose Amador";
+
 export const createUserAddressController = async (req, res) => {
     try {
-        const { id, id_user, country, full_name, number, address_1, address_2, neighborhood, province, postal_code, preferred_address, status } =
-            req.body;
+        const {
+            id,
+            id_user,
+            country,
+            full_name,
+            number,
+            address_1,
+            address_2,
+            neighborhood,
+            province,
+            postal_code,
+            preferred_address,
+            status,
+            address_details,
+            country_id,
+            house_number,
+            latitude,
+            longitude,
+            municipality_id,
+            neighborhood_id,
+            phone_number,
+            province_id,
+            street,
+        } = req.body;
         const userAddress = await createUserAddress(
             id,
             id_user,
@@ -100,7 +141,17 @@ export const createUserAddressController = async (req, res) => {
             province,
             postal_code,
             preferred_address,
-            status
+            status,
+            address_details,
+            country_id,
+            house_number,
+            latitude,
+            longitude,
+            municipality_id,
+            neighborhood_id,
+            phone_number,
+            province_id,
+            street
         );
         if (userAddress) res.status(201).json({ data: req.body, message: "User Address Created" });
         else res.json({ data: {}, message: "User Address Not Created" });
@@ -242,24 +293,30 @@ export const updateUserIdCurrencyController = async (req, res) => {
 };
 
 export const getUserCurrencyOrMainCurrency = async (req, res) => {
-    console.log("--------------------------------------------");
-    console.log("--------------------------------------------");
-    console.log("--------------------------------------------");
-    console.log("--------------------------------------------");
-
     try {
         const idUser = req.session.id;
         const dataUser = await getUserById(idUser);
 
-        let currency;
+        if (!dataUser) return res.json({ data: {}, message: "User Not Found" });
 
-        console.log(dataUser.id_currency);
-        console.log("--------------------------------------------");
+        let currency;
 
         if (dataUser.id_currency) currency = (await getCurrenciesById(dataUser.id_currency))[0];
         else currency = (await getMainCurrency())[0];
 
         res.json({ data: currency, message: "user currency found" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateUserTypeIdController = async (req, res) => {
+    try {
+        const idUser = req.params.id_user;
+        const userTypeId = req.body.user_type_id;
+        const result = await updateUserTypeId(idUser, userTypeId);
+        if (result) res.json({ data: req.body, message: "user Type Id was changed" });
+        else res.json({ data: req.body, message: "user Type Id was not changed" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

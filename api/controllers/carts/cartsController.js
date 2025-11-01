@@ -14,6 +14,7 @@ import {
     getOrderById,
     getOrderByIdCart,
     getOrders,
+    getOrdersByresponsibleShop,
     getOrdersFromShop,
     getOrdersFromShopAndOrder,
     updateCart,
@@ -138,6 +139,8 @@ export const createCartBuyController = async (req, res) => {
             total_discount,
             paypal_fee,
             paypal_payment_id,
+            delivery_cost,
+            delivery_distance,
             image,
             id_currency,
             want_use_address,
@@ -153,6 +156,8 @@ export const createCartBuyController = async (req, res) => {
             total_discount,
             paypal_fee,
             paypal_payment_id,
+            delivery_cost,
+            delivery_distance,
             image,
             id_currency,
             want_use_address,
@@ -239,6 +244,18 @@ export const getOrdersController = async (req, res) => {
     try {
         const { status } = req.query;
         const orders = await getOrders(status);
+        if (orders.length > 0) res.json({ data: orders, message: "Orders Found" });
+        else res.json({ data: [], message: "Orders Not Found" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getOrdersByresponsibleShopController = async (req, res) => {
+    try {
+        const idShop = req.params.id_shop;
+        const { status } = req.query;
+        const orders = await getOrdersByresponsibleShop(idShop, status);
         if (orders.length > 0) res.json({ data: orders, message: "Orders Found" });
         else res.json({ data: [], message: "Orders Not Found" });
     } catch (error) {

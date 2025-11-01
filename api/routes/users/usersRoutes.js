@@ -19,6 +19,7 @@ import {
     updateUserIdCurrencyController,
     updateUserIdPayMathodForCartController,
     updateUserIdShopForCartController,
+    updateUserTypeIdController,
     updateUserWantUseAddressController,
 } from "../../controllers/users/usersController.js";
 import {
@@ -28,6 +29,11 @@ import {
     updateUserAddressController,
     userAddressCanBePreferredController,
 } from "../../controllers/users/usersAddressesController.js";
+import { createUserTypeController, getUsersTypesController } from "../../controllers/users/usersTypesController.js";
+
+// Types Users
+router.get("/types", getUsersTypesController);
+router.post("/types", createUserTypeController);
 
 router.get("/get-user-currency-or-main-currency", getUserCurrencyOrMainCurrency);
 
@@ -60,6 +66,7 @@ router.patch("/change-id-pay-method-for-cart/:id_user/:id_pay_method", updateUse
 router.patch("/change-id-user-address-for-cart/:id_user/:id_address", updateUserIdAddressForCartController);
 
 router.patch("/change-id-currency-user/:id_user", updateUserIdCurrencyController);
+router.patch("/change-user-type-id/:id_user", updateUserTypeIdController);
 
 // getUserShopController;
 
