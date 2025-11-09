@@ -192,7 +192,9 @@ app.get("/api/exist", async (req, res) => {
 app.post("/api/seed", async (req, res) => {
     try {
         const connectionForCreateDB = await connectionForCreate();
-        await connectionForCreateDB.execute("CREATE DATABASE IF NOT EXISTS francarlos_comunicaciones;");
+        // await connectionForCreateDB.execute("CREATE DATABASE IF NOT EXISTS francarlos_comunicaciones;");
+        await connectionForCreateDB.execute("CREATE DATABASE IF NOT EXISTS byshop_db;");
+
         await connectionForCreateDB.end();
 
         const connection = await connectToDatabase();
@@ -988,7 +990,8 @@ app.post("/api/seed", async (req, res) => {
 app.delete("/api/delete", async (req, res) => {
     try {
         const connection = await connectToDatabase();
-        await connection.execute("DROP DATABASE francarlos_comunicaciones;");
+        // await connection.execute("DROP DATABASE francarlos_comunicaciones;");
+        await connection.execute("DROP DATABASE byshop_db;");
         res.send("Base de datos eliminada");
     } catch (error) {
         res.send("No se puede eliminar la bbdd");
