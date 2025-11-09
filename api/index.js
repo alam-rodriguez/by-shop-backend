@@ -174,8 +174,6 @@ app.use("/api/locations", locationsRoutes);
 // Search History
 app.use("/api/web-push-notification", webPushNotification);
 
-const PORT = process.env.PORT || 3001;
-
 app.get("/api/exist", async (req, res) => {
     try {
         const connection = await connectToDatabase();
@@ -996,6 +994,8 @@ app.delete("/api/delete", async (req, res) => {
         res.send("No se puede eliminar la bbdd");
     }
 });
+
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
