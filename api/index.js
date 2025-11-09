@@ -180,7 +180,7 @@ app.get("/api/exist", async (req, res) => {
         const [rows] = await connection.execute(`
             SELECT SCHEMA_NAME 
         FROM information_schema.SCHEMATA 
-        WHERE SCHEMA_NAME = 'francarlos_comunicaciones';
+        WHERE SCHEMA_NAME = 'byshop_db';
     `);
         if (rows.length > 0) res.send("existe");
         else res.send("No existe");

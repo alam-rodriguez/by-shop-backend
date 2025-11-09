@@ -80,7 +80,7 @@ export const connectToDatabase = async () => {
         host: connectionEnvironments.host, // Host de tu base de datos (puede ser una IP o dominio)
         user: connectionEnvironments.user, // Usuario de la base de datos
         password: connectionEnvironments.password, // Contraseña del usuario
-        // database: "francarlos_comunicaciones", // Nombre de la base de datos
+        database: connectionEnvironments.database, // Nombre de la base de datos
         // host: "mysql", // nombre del servicio en docker-compose
         // user: "root",
         // password: "123456789",
