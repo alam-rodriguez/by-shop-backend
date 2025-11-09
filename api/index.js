@@ -405,7 +405,7 @@ app.post("/api/seed", async (req, res) => {
                 id_model CHAR(36) NOT NULL,
                 view TINYINT NOT NULL,
                 -- price FLOAT NOT NULL,
-                price DECIMAL(10,2) NOT NULL
+                price DECIMAL(10,2) NOT NULL,
                 quantity INT NOT NULL, 
                 id_shop CHAR(36) NOT NULL,
                 additional_details TEXT,
