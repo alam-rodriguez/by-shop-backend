@@ -1,5 +1,18 @@
 // Models
-import { createOffer, createOfferArticle, createOfferArticleOption, createOfferCategory, getOffer, getOffers, updateOffer, updateOfferArticle, updateOfferCategory, updateOfferArticleOption, deleteOfferCategory, deleteOfferArticle } from "../../models/offers/offersModel.js";
+import {
+    createOffer,
+    createOfferArticle,
+    createOfferArticleOption,
+    createOfferCategory,
+    getOffer,
+    getOffers,
+    updateOffer,
+    updateOfferArticle,
+    updateOfferCategory,
+    updateOfferArticleOption,
+    deleteOfferCategory,
+    deleteOfferArticle,
+} from "../../models/offers/offersModel.js";
 
 export const getOffersController = async (req, res) => {
     try {
@@ -13,7 +26,7 @@ export const getOffersController = async (req, res) => {
 
 export const getOfferController = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const offer = await getOffer(id);
         if (offer.length > 0) res.status(200).json({ message: "Offer Found", data: offer[0] });
         else res.json({ message: "Offer Not Found", data: {} });
@@ -24,8 +37,8 @@ export const getOfferController = async (req, res) => {
 
 export const createOfferController = async (req, res) => {
     try {
-        const {id, name, description, percent_discount, image, date_start, date_end, status} = req.body;
-        const offer = await createOffer(id, name, description, percent_discount, image, date_start, date_end, status);
+        const { id, shop_id, name, description, percent_discount, image, date_start, date_end, status } = req.body;
+        const offer = await createOffer(id, shop_id, name, description, percent_discount, image, date_start, date_end, status);
         if (offer) res.status(201).json({ message: "Offer Created", data: req.body });
         else res.json({ message: "Offer Not Created", data: {} });
     } catch (error) {
@@ -36,8 +49,8 @@ export const createOfferController = async (req, res) => {
 export const updateOfferController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, percent_discount, image, date_start, date_end, status} = req.body;
-        const offer = await updateOffer(id, name, description, percent_discount, image, date_start, date_end, status);
+        const { shop_id, name, description, percent_discount, image, date_start, date_end, status } = req.body;
+        const offer = await updateOffer(id, shop_id, name, description, percent_discount, image, date_start, date_end, status);
         if (offer) res.status(200).json({ message: "Offer Updated", data: req.body });
         else res.json({ message: "Offer Not Updated", data: {} });
     } catch (error) {
@@ -47,7 +60,7 @@ export const updateOfferController = async (req, res) => {
 
 export const createOfferCategoryController = async (req, res) => {
     try {
-        const {id, id_offer, id_category, type_category, percent_discount, status} = req.body;
+        const { id, id_offer, id_category, type_category, percent_discount, status } = req.body;
         const offerCategory = await createOfferCategory(id, id_offer, id_category, type_category, percent_discount, status);
         if (offerCategory) res.status(201).json({ message: "Offer Category Created", data: req.body });
         else res.json({ message: "Offer Category Not Created", data: {} });
@@ -59,7 +72,7 @@ export const createOfferCategoryController = async (req, res) => {
 export const updateOfferCategoryController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_offer, id_category, type_category, percent_discount, status} = req.body;
+        const { id_offer, id_category, type_category, percent_discount, status } = req.body;
         const offerCategory = await updateOfferCategory(id, id_offer, id_category, type_category, percent_discount, status);
         if (offerCategory) res.status(200).json({ message: "Offer Category Updated", data: req.body });
         else res.json({ message: "Offer Category Not Updated", data: {} });
@@ -81,7 +94,7 @@ export const deleteOfferCategoryController = async (req, res) => {
 
 export const createOfferArticleController = async (req, res) => {
     try {
-        const {id, id_offer, id_article, percent_discount, price, status} = req.body;
+        const { id, id_offer, id_article, percent_discount, price, status } = req.body;
         const offerArticle = await createOfferArticle(id, id_offer, id_article, percent_discount, price, status);
         if (offerArticle) res.status(201).json({ message: "Offer Article Created", data: req.body });
         else res.json({ message: "Offer Article Not Created", data: {} });
@@ -93,7 +106,7 @@ export const createOfferArticleController = async (req, res) => {
 export const updateOfferArticleController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_offer, id_article, percent_discount, price, status} = req.body;
+        const { id_offer, id_article, percent_discount, price, status } = req.body;
         const offerArticle = await updateOfferArticle(id, id_offer, id_article, percent_discount, price, status);
         if (offerArticle) res.status(200).json({ message: "Offer Article Updated", data: req.body });
         else res.json({ message: "Offer Article Not Updated", data: {} });
@@ -115,7 +128,7 @@ export const deleteOfferArticleController = async (req, res) => {
 
 export const createOfferArticleOptionController = async (req, res) => {
     try {
-        const {id, id_offer_article, id_option, id_value, percent_discount, price, status} = req.body;
+        const { id, id_offer_article, id_option, id_value, percent_discount, price, status } = req.body;
         const offerArticleOption = await createOfferArticleOption(id, id_offer_article, id_option, id_value, percent_discount, price, status);
         if (offerArticleOption) res.status(201).json({ message: "Offer Article Option Created", data: req.body });
         else res.json({ message: "Offer Article Option Not Created", data: {} });
@@ -124,11 +137,10 @@ export const createOfferArticleOptionController = async (req, res) => {
     }
 };
 
-
 export const updateOfferArticleOptionController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { id_offer_article, id_option, id_value, percent_discount, price, status} = req.body;
+        const { id_offer_article, id_option, id_value, percent_discount, price, status } = req.body;
         const offerArticleOption = await updateOfferArticleOption(id, id_offer_article, id_option, id_value, percent_discount, price, status);
         if (offerArticleOption) res.status(200).json({ message: "Offer Article Option Updated", data: req.body });
         else res.json({ message: "Offer Article Option Not Updated", data: {} });

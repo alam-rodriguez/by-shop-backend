@@ -1,6 +1,7 @@
 import express from "express";
 export const app = express();
 import cookieParser from "cookie-parser";
+import "./web-push/webPush.js";
 
 import jwt from "jsonwebtoken";
 
@@ -31,6 +32,8 @@ app.use(
             "https://f25d1c4a178a.ngrok-free.app",
             "https://33105c2a514f.ngrok-free.app",
             "http://192.168.16.63",
+            "http://172.25.184.72:3000",
+            "https://5e24b7e57dd5.ngrok-free.app/",
         ],
 
         credentials: true,
@@ -57,6 +60,7 @@ import paypalRoutes from "./payments/paypalRoutes.js";
 import searchHistoryRoutes from "./routes/search-history/searchHistoryRoutes.js";
 import deliveriesRoutes from "./routes/delivery/deliveryRoutes.js";
 import locationsRoutes from "./routes/locations/locationsRoutes.js";
+import webPushNotification from "./routes/web-push/webPushRoutes.js";
 // Middlewares
 // app.use((req, res, next) => {
 //     console.log("Authentication Middleware");
@@ -166,6 +170,9 @@ app.use("/api/search-history", searchHistoryRoutes);
 
 // Search History
 app.use("/api/locations", locationsRoutes);
+
+// Search History
+app.use("/api/web-push-notification", webPushNotification);
 
 const PORT = process.env.PORT || 3001;
 
@@ -682,9 +689,23 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
+        // await connection.execute(`
+        //     CREATE TABLE offers(
+        //         id char(36) NOT NULL PRIMARY KEY,
+        //         name VARCHAR(255) NOT NULL,
+        //         description TEXT NOT NULL,
+        //         percent_discount DECIMAL(5,2),
+        //         image VARCHAR(2083),
+        //         date_start DATETIME NOT NULL,
+        //         date_end DATETIME NOT NULL,
+        //         status TINYINT NOT NULL DEFAULT 1,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        //     );
+        // `);
         await connection.execute(`  
             CREATE TABLE offers(
                 id char(36) NOT NULL PRIMARY KEY,
+                shop_id char(36),
                 name VARCHAR(255) NOT NULL,
                 description TEXT NOT NULL,
                 percent_discount DECIMAL(5,2),
@@ -934,6 +955,31 @@ app.post("/api/seed", async (req, res) => {
         //         status TINYINT(1) NOT NULL DEFAULT 1
         //     );
         // `);
+
+        await connection.execute(`
+           CREATE TABLE user_push_notifications_subscriptions (
+                id CHAR(36) NOT NULL PRIMARY KEY,          -- UUID único
+                user_id CHAR(36) NULL,                     -- opcional si el usuario tiene cuenta
+                endpoint TEXT NOT NULL,                    -- URL del servicio push
+                p256dh VARCHAR(255) NOT NULL,              -- clave pública del navegador
+                auth VARCHAR(255) NOT NULL,                -- clave auth del navegador
+                user_agent VARCHAR(255) NULL,              -- navegador/dispositivo
+                status TINYINT(1) NOT NULL DEFAULT 1,      -- 1 = activas, 0 = desactivadas
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        await connection.execute(`  
+            CREATE TABLE delivery_order_preferences (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                id_delivery CHAR(36) NOT NULL,
+                delivery_order_id CHAR(36) NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
 
         res.send("Base de datos creada");
     } catch (error) {

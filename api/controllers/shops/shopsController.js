@@ -1,5 +1,13 @@
 // Models
-import { createShop, getShops, getShopsById, getShopsForCart, updateShop, updateStatusShop } from "../../models/shops/shopModel.js";
+import {
+    createShop,
+    getShops,
+    getShopsById,
+    getShopsForCart,
+    getShopsForCartBought,
+    updateShop,
+    updateStatusShop,
+} from "../../models/shops/shopModel.js";
 
 export const getShopsController = async (req, res) => {
     try {
@@ -146,6 +154,17 @@ export const getShopsForCartController = async (req, res) => {
     try {
         const idUser = req.params.id_user;
         const shops = await getShopsForCart(idUser);
+        if (shops.length > 0) res.json({ data: shops, message: "Shops found" });
+        else res.status(404).json({ data: [], message: "Shops Not found" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getShopsForCartBoughtController = async (req, res) => {
+    try {
+        const idCartBought = req.params.id_cart_bought;
+        const shops = await getShopsForCartBought(idCartBought);
         if (shops.length > 0) res.json({ data: shops, message: "Shops found" });
         else res.status(404).json({ data: [], message: "Shops Not found" });
     } catch (error) {

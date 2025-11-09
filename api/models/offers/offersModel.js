@@ -94,19 +94,19 @@ export const getOffer = async (id) => {
     return rows;
 };
 
-export const createOffer = async (id, name, description, percent_discount, image, date_start, date_end, status) => {
+export const createOffer = async (id, shop_id, name, description, percent_discount, image, date_start, date_end, status) => {
     const [rows] = await connection.execute(
-        `INSERT INTO offers(id, name, description, percent_discount, image, date_start, date_end, status) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?);`,
-        [id, name, description, percent_discount, image, date_start, date_end, status ]
+        `INSERT INTO offers(id, shop_id, name, description, percent_discount, image, date_start, date_end, status) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        [id, shop_id, name, description, percent_discount, image, date_start, date_end, status]
     );
     return rows.affectedRows > 0;
 };
 
-export const updateOffer = async (id, name, description, percent_discount, image, date_start, date_end, status) => {
+export const updateOffer = async (id, shop_id, name, description, percent_discount, image, date_start, date_end, status) => {
     const [rows] = await connection.execute(
-        `UPDATE offers SET name = ?, description = ?, percent_discount = ?, image = ?, date_start = ?, date_end = ?, status = ? WHERE id = ?;`,
-        [name, description, percent_discount, image, date_start, date_end, status, id ]
+        `UPDATE offers SET shop_id = ?, name = ?, description = ?, percent_discount = ?, image = ?, date_start = ?, date_end = ?, status = ? WHERE id = ?;`,
+        [shop_id, name, description, percent_discount, image, date_start, date_end, status, id]
     );
     return rows.affectedRows > 0;
 };
@@ -115,7 +115,7 @@ export const createOfferCategory = async (id, id_offer, id_category, type_catego
     const [rows] = await connection.execute(
         `INSERT INTO offers_categories(id, id_offer, id_category, type_category, percent_discount, status) 
       VALUES(?, ?, ?, ?, ?, ?);`,
-        [id, id_offer, id_category, type_category, percent_discount, status ]
+        [id, id_offer, id_category, type_category, percent_discount, status]
     );
     return rows.affectedRows > 0;
 };
@@ -123,24 +123,21 @@ export const createOfferCategory = async (id, id_offer, id_category, type_catego
 export const updateOfferCategory = async (id, id_offer, id_category, type_category, percent_discount, status) => {
     const [rows] = await connection.execute(
         `UPDATE offers_categories SET id_offer = ?, id_category = ?, type_category = ?, percent_discount = ?, status = ? WHERE id = ?;`,
-        [id_offer, id_category, type_category, percent_discount, status, id ]
+        [id_offer, id_category, type_category, percent_discount, status, id]
     );
     return rows.affectedRows > 0;
 };
 
 export const deleteOfferCategory = async (idOffer, idCategory) => {
-    const [rows] = await connection.execute(
-        `DELETE FROM offers_categories WHERE id_offer = ? AND id_category = ?;`,
-        [idOffer, idCategory]
-    );
+    const [rows] = await connection.execute(`DELETE FROM offers_categories WHERE id_offer = ? AND id_category = ?;`, [idOffer, idCategory]);
     return rows.affectedRows > 0;
 };
-    
+
 export const createOfferArticle = async (id, id_offer, id_article, percent_discount, price, status) => {
     const [rows] = await connection.execute(
         `INSERT INTO offers_articles(id, id_offer, id_article, percent_discount, price, status) 
       VALUES(?, ?, ?, ?, ?, ?);`,
-        [id, id_offer, id_article, percent_discount, price, status ]
+        [id, id_offer, id_article, percent_discount, price, status]
     );
     return rows.affectedRows > 0;
 };
@@ -148,31 +145,28 @@ export const createOfferArticle = async (id, id_offer, id_article, percent_disco
 export const updateOfferArticle = async (id, id_offer, id_article, percent_discount, price, status) => {
     const [rows] = await connection.execute(
         `UPDATE offers_articles SET id_offer = ?, id_article = ?, percent_discount = ?, price = ?, status = ? WHERE id = ?;`,
-        [id_offer, id_article, percent_discount, price, status, id ]
+        [id_offer, id_article, percent_discount, price, status, id]
     );
     return rows.affectedRows > 0;
 };
 
 export const deleteOfferArticle = async (idOffer, idArticle) => {
-    const [rows] = await connection.execute(
-        `DELETE FROM offers_articles WHERE id_offer = ? AND id_article = ?;`,
-        [idOffer, idArticle]
-    );
+    const [rows] = await connection.execute(`DELETE FROM offers_articles WHERE id_offer = ? AND id_article = ?;`, [idOffer, idArticle]);
     return rows.affectedRows > 0;
 };
 
 export const createOfferArticleOption = async (id, id_offer_article, id_option, id_value, percent_discount, price, status) => {
-    const [rows] = await connection.execute(  
+    const [rows] = await connection.execute(
         `INSERT INTO offers_articles_options(id, id_offer_article, id_option, id_value, percent_discount, price, status) 
       VALUES(?, ?, ?, ?, ?, ?, ?);`,
-        [id, id_offer_article, id_option, id_value, percent_discount, price, status ]
+        [id, id_offer_article, id_option, id_value, percent_discount, price, status]
     );
     return rows.affectedRows > 0;
 };
 export const updateOfferArticleOption = async (id, id_offer_article, id_option, id_value, percent_discount, price, status) => {
-    const [rows] = await connection.execute(  
+    const [rows] = await connection.execute(
         `UPDATE offers_articles_options SET id_offer_article = ?, id_option = ?, id_value = ?, percent_discount = ?, price = ?, status = ? WHERE id = ?;`,
-        [id_offer_article, id_option, id_value, percent_discount, price, status, id ]
+        [id_offer_article, id_option, id_value, percent_discount, price, status, id]
     );
     return rows.affectedRows > 0;
 };

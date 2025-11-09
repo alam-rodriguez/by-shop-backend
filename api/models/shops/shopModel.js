@@ -205,3 +205,19 @@ export const getShopsForCart = async (idUser) => {
     );
     return rows;
 };
+
+export const getShopsForCartBought = async (idCartBought) => {
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            DISTINCT s.*
+        FROM carts_bought AS cb
+        JOIN carts_bought_items AS cbi ON(cbi.id_cart_bought = cb.id)
+        JOIN carts AS c ON(c.id = cbi.id_cart)
+        JOIN articles AS a ON(c.id_article = a.id)
+        JOIN shops AS s ON(a.id_shop = s.id)
+        WHERE cb.id = ?;`,
+        [idCartBought]
+    );
+    return rows;
+};

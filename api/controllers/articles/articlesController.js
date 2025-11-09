@@ -273,8 +273,8 @@ export const checkArticlesIsInListController = async (req, res) => {
         const { id_user, id_article } = req.query;
         const articleList = await checkArticlesIsInList(id_user, id_article);
         console.log(articleList);
-        if (articleList.length > 0) res.status(200).json({ message: "Article Is In List", data: articleList[0] });
-        else res.json({ message: "Article Is Not In List", data: {} });
+        if (articleList.length > 0) res.status(200).json({ message: "Article Is In List", data: articleList[0], isInList: true });
+        else res.json({ message: "Article Is Not In List", data: {}, isInList: false });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
