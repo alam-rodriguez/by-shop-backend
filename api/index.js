@@ -35,6 +35,7 @@ app.use(
             "http://172.25.184.72:3000",
             "https://5e24b7e57dd5.ngrok-free.app/",
             "http://64.227.53.125:3000",
+            "https://9425967bc6e4.ngrok-free.app/",
         ],
 
         credentials: true,
