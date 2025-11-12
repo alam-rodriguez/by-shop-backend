@@ -63,6 +63,8 @@ import searchHistoryRoutes from "./routes/search-history/searchHistoryRoutes.js"
 import deliveriesRoutes from "./routes/delivery/deliveryRoutes.js";
 import locationsRoutes from "./routes/locations/locationsRoutes.js";
 import webPushNotification from "./routes/web-push/webPushRoutes.js";
+import advertisementsRoutes from "./routes/advertisements/advertisementsRoutes.js";
+
 // Middlewares
 // app.use((req, res, next) => {
 //     console.log("Authentication Middleware");
@@ -175,6 +177,9 @@ app.use("/api/locations", locationsRoutes);
 
 // Search History
 app.use("/api/web-push-notification", webPushNotification);
+
+// AdvertisementsRoutes
+app.use("/api/advertisements", advertisementsRoutes);
 
 app.get("/api/exist", async (req, res) => {
     try {
@@ -517,13 +522,13 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
-        // await connection.execute(`
-        //     CREATE TABLE option_categories(
-        //         id char(36) NOT NULL PRIMARY KEY,
-        //         name VARCHAR(255) NOT NULL,
-        //         status TINYINT NOT NULL
-        //     );
-        // `);
+        await connection.execute(`
+            CREATE TABLE option_categories(
+                id char(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                status TINYINT NOT NULL
+            );
+        `);
         await connection.execute(`
             CREATE TABLE options_categories(
                 id char(36) NOT NULL PRIMARY KEY,
@@ -982,6 +987,33 @@ app.post("/api/seed", async (req, res) => {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             );
         `);
+
+        await connection.execute(`  
+            CREATE TABLE advertisements (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                article_id CHAR(36) NOT NULL,
+                link VARCHAR(500) NOT NULL,
+                sort_order INT NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
+
+        // await connection.execute(`
+        //     CREATE TABLE articles_advertisements (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         advertisement_id CHAR(36) NOT NULL,
+        //         article_id CHAR(36) NOT NULL,
+        //         link VARCHAR(500) NOT NULL,
+        //         sort_order INT NOT NULL,
+        //         status TINYINT DEFAULT 1,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        //         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        //     );
+        // `);
 
         res.send("Base de datos creada");
     } catch (error) {
