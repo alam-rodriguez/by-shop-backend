@@ -32,6 +32,7 @@ export const getAdvertisementsForApp = async () => {
             ads.id, 
             ads.name, 
             ads.description,
+            ads.link,
             at.main_image AS article_image 
         FROM advertisements AS ads 
         LEFT JOIN articles AS at ON(at.id = ads.article_id)
