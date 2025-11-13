@@ -1002,6 +1002,27 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
+        await connection.execute(`  
+            CREATE TABLE home_categories (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                description VARCHAR(255) NULL,
+                sort_order INT NOT NULL,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+            CREATE TABLE home_category_store (
+                id CHAR(36) PRIMARY KEY,
+                home_category_id CHAR(36) NOT NULL,
+                store_id CHAR(36) NOT NULL,
+                top TINYINT DEFAULT 1,
+                status TINYINT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (home_category_id) REFERENCES home_categories(id)
+            );
+        `);
+
         // await connection.execute(`
         //     CREATE TABLE articles_advertisements (
         //         id CHAR(36) NOT NULL PRIMARY KEY,
