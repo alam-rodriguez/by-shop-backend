@@ -31,25 +31,10 @@ export const updateHomeCategory = async (id, name, description, sort_order, stat
     return rows.affectedRows > 0;
 };
 
-// CREATE TABLE home_category_store (
-//                 id CHAR(36) PRIMARY KEY,
-//                 home_category_id CHAR(36) NOT NULL,
-//                 store_id CHAR(36) NOT NULL,
-//                 top TINYINT DEFAULT 1,
-//                 status TINYINT DEFAULT 1,
-//                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//                 FOREIGN KEY (home_category_id) REFERENCES home_categories(id)
-//             );
-
 export const getHomeCategoryStoreByIdHomeCategory = async (homeCategoryId) => {
     const [rows] = await connection.execute("SELECT * FROM home_category_store ORDER BY top WHERE home_category_id = ?", [homeCategoryId]);
     return rows;
 };
-
-// export const getHomeCategoryById = async (id) => {
-//     const [rows] = await connection.execute("SELECT * FROM home_categories WHERE id = ?", [id]);
-//     return rows;
-// };
 
 export const createHomeCategoryStore = async (id, home_category_id, store_id, top, status) => {
     const [rows] = await connection.execute(
@@ -69,4 +54,54 @@ export const updateHomeCategoryStore = async (id, home_category_id, store_id, to
         id,
     ]);
     return rows.affectedRows > 0;
+};
+
+export const getHomeCategoryStore = async (homeCategoryId) => {
+    const [rows] = await connection.execute("SELECT * FROM home_category_store WHERE home_category_id = ?", [homeCategoryId]);
+    return rows;
+};
+
+export const getHomeCategoriesForApp = async () => {
+    const [rows] = await connection.execute(`
+        WITH ranked AS (
+            SELECT
+                hcs.home_category_id,
+                a.id AS article_id,
+                a.name,
+                a.price,
+                a.description,
+                a.main_image,
+                ROW_NUMBER() OVER (
+                    PARTITION BY hcs.home_category_id 
+                    ORDER BY hcs.top DESC
+                ) AS rn
+            FROM home_category_store hcs
+            JOIN articles a ON a.id = hcs.store_id
+            WHERE hcs.status = 1
+        )
+        SELECT 
+            hc.id,
+            hc.name,
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', r.article_id,
+                        'name', r.name,
+                        'price', r.price,
+                        'description', r.description,
+                        'main_image', r.main_image
+                    )
+                )
+                FROM (
+                    SELECT *
+                    FROM ranked
+                    WHERE home_category_id = hc.id AND rn <= 4
+                    ORDER BY rn
+                ) AS r
+            ) AS articles
+        FROM home_categories hc
+        WHERE hc.status = 1
+        ORDER BY hc.sort_order;
+    `);
+    return rows;
 };

@@ -51,8 +51,10 @@ import {
     createHomeCategoryController,
     createHomeCategoryStoreController,
     getHomeCategoriesController,
+    getHomeCategoriesForAppController,
     getHomeCategoryByIdController,
     getHomeCategoryStoreByIdHomeCategoryController,
+    getHomeCategoryStoreController,
     updateHomeCategoryController,
 } from "../../controllers/categories/homeCategoriesController.js";
 
@@ -64,15 +66,17 @@ router.put("/departments/:id", updateDepartmentController);
 
 // home categories
 router.get("/home-categories", getHomeCategoriesController);
+router.get("/home-categories-for-app", getHomeCategoriesForAppController);
 router.get("/home-categories/:id", getHomeCategoryByIdController);
 router.post("/home-categories", createHomeCategoryController);
 router.put("/home-categories/:id", updateHomeCategoryController);
 
 // home categories store
-// router.get("/home-categories/home-categories-store", getHomeCategoryStoreByIdHomeCategoryController);
-// // router.get("/home-categories/home-categories-store/:id", getHomeCategoryByIdController);
-// router.post("/home-categories/home-categories-store", createHomeCategoryStoreController);
-// router.put("/home-categories/home-categories-store/", updateHomeCategoryController);
+router.get("/home-categories/home-categories-store", getHomeCategoryStoreByIdHomeCategoryController);
+// router.get("/home-categories/home-categories-store-by-home-category/:home_category_id", getHomeCategoryStoreByIdHomeCategoryController);
+router.post("/home-categories/home-categories-store", createHomeCategoryStoreController);
+router.put("/home-categories/home-categories-store/", updateHomeCategoryController);
+router.get("/home-categories/home-category-store-by-home-category/:home_category_id", getHomeCategoryStoreController);
 
 router.post("/direct-category-department", createDirectCategoryDepartamentController);
 router.delete("/departments/directs-categories/:id_department/:id_category", deleteDirectCategoryDepartamentController);

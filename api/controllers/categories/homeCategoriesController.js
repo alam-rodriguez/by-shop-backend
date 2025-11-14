@@ -2,7 +2,9 @@ import {
     createHomeCategory,
     createHomeCategoryStore,
     getHomeCategories,
+    getHomeCategoriesForApp,
     getHomeCategoryById,
+    getHomeCategoryStore,
     getHomeCategoryStoreByIdHomeCategory,
     updateHomeCategory,
     updateHomeCategoryStore,
@@ -22,8 +24,8 @@ export const getHomeCategoryByIdController = async (req, res) => {
     try {
         const id = req.params.id;
         const categories = await getHomeCategoryById(id);
-        if (categories.length > 0) res.json({ message: "Categories found", data: categories });
-        else res.json({ message: "Categories Not found", data: [] });
+        if (categories.length > 0) res.json({ message: "Categories found", data: categories[0] });
+        else res.json({ message: "Categories Not found", data: null });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
@@ -91,6 +93,27 @@ export const updateHomeCategoryStoreController = async (req, res) => {
         const categories = await updateHomeCategoryStore(id, home_category_id, store_id, top, status);
         if (categories) res.json({ message: "Home Category Store Updated", data: req.body });
         else res.json({ message: "Home Category Store Not Updated", data: req.body });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getHomeCategoryStoreController = async (req, res) => {
+    try {
+        const homeCategoryId = req.params.home_category_id;
+        const categoryStore = await getHomeCategoryStore(homeCategoryId);
+        if (categoryStore.length > 0) res.json({ message: "Category Store found", data: categoryStore });
+        else res.json({ message: "Category Store Not found", data: [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getHomeCategoriesForAppController = async (req, res) => {
+    try {
+        const categories = await getHomeCategoriesForApp();
+        if (categories.length > 0) res.json({ message: "Categories found", data: categories });
+        else res.json({ message: "Categories Not found", data: [] });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
