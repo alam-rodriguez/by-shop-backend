@@ -116,7 +116,8 @@ export const googleCallback = async (req, res) => {
             maxAge: 1000 * 60 * 60 * 24 * 30,
         });
 
-        return res.redirect(`http://localhost:3000/usuario/sesion?login=success`);
+        // return res.redirect(`http://localhost:3000/usuario/sesion?login=success`);
+        return res.redirect(`${process.env.FRONTEND_URL}/usuario/sesion?login=success`);
     } catch (err) {
         console.error(err.response?.data || err.message);
         res.status(500).send("Error autenticando con Google");
