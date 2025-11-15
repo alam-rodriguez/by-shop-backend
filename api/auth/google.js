@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 export const authUserWithGoogle = async (req, res) => {
     const params = querystring.stringify({
         client_id: process.env.GOOGLE_CLIENT_ID,
-        redirect_uri: "http://localhost:3001/api/auth/google/callback",
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
         response_type: "code",
         scope: "openid email profile",
         access_type: "offline",
