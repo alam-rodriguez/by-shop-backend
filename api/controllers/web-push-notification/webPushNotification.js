@@ -13,6 +13,7 @@ import {
 } from "../../models/web-push-notification/webPushNotification.js";
 
 export const createUserPushNotificationSubscriptionController = async (req, res) => {
+    console.warn("------------------------------------------------------------");
     try {
         const subscription = req.body;
         const userId = req.session.id;
