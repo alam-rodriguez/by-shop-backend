@@ -13,12 +13,9 @@ import {
 } from "../../models/web-push-notification/webPushNotification.js";
 
 export const createUserPushNotificationSubscriptionController = async (req, res) => {
-    console.warn("------------------------------------------------------------");
     try {
         const subscription = req.body;
         const userId = req.session.id;
-
-        console.log(userId);
 
         if (!userId) return res.json({ data: {}, message: "User Is Logout" });
 
@@ -110,6 +107,8 @@ export const sendAdminShopsPushNotificationsForNewOrderController = async (req, 
 };
 
 export const sendPushNotificationToClientController = async (req, res) => {
+    console.log("----------------------------|||||-------------------------------------");
+
     try {
         const userId = req.params.user_id;
         console.log(userId);
