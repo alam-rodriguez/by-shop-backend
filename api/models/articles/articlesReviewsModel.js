@@ -54,7 +54,7 @@ export const getArticleReviews = async (id_article) => {
         LEFT JOIN articles_reviews_options aro ON (ar.id = aro.id_review)
         -- LEFT JOIN options o ON (o.id = co.id_option)
         -- LEFT JOIN options_values ov ON (aro.id_value = ov.id)
-        WHERE ar.id_article = ? AND ar.status = 2
+        WHERE ar.id_article = ? AND ar.status in(1,2)
         GROUP BY ar.id
         ORDER BY ar.created_at DESC;`,
         [id_article]

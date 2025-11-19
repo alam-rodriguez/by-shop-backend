@@ -12,6 +12,9 @@ import {
     userDeviceHasPushNotificationSubscription,
 } from "../../models/web-push-notification/webPushNotification.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 export const createUserPushNotificationSubscriptionController = async (req, res) => {
     try {
         const subscription = req.body;
@@ -107,6 +110,7 @@ export const sendAdminShopsPushNotificationsForNewOrderController = async (req, 
 };
 
 export const sendPushNotificationToClientController = async (req, res) => {
+    console.log("------------------------||||||||||||------------------------------------");
     try {
         const userId = req.params.user_id;
         console.log(userId);
@@ -117,6 +121,8 @@ export const sendPushNotificationToClientController = async (req, res) => {
         console.log(userClientSubscriptions);
 
         const { title, body, url } = req.body;
+        console.log(url);
+        console.log(process.env.FRONTEND_URL + url);
 
         const payload = JSON.stringify({
             title,
