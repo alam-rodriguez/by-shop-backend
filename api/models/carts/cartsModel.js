@@ -561,7 +561,8 @@ export const getOrderById = async (idOrder) => {
                         'id_cart_bought_item', cbi.id,
                         'status_cart_bought_item', cbi.status,
                         'article_id_shop', a.id_shop,
-                        'article_name_shop', s.name
+                        'article_name_shop', s.name,
+                        'cart_id', c.id
                     )
                 ) AS articles
             FROM carts_bought cbt

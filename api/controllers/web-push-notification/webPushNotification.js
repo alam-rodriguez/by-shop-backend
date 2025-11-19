@@ -107,8 +107,6 @@ export const sendAdminShopsPushNotificationsForNewOrderController = async (req, 
 };
 
 export const sendPushNotificationToClientController = async (req, res) => {
-    console.log("----------------------------|||||-------------------------------------");
-
     try {
         const userId = req.params.user_id;
         console.log(userId);
@@ -118,11 +116,12 @@ export const sendPushNotificationToClientController = async (req, res) => {
 
         console.log(userClientSubscriptions);
 
-        const { title, body } = req.body;
+        const { title, body, url } = req.body;
 
         const payload = JSON.stringify({
             title,
             body,
+            url: process.env.FRONTEND_URL + url,
         });
 
         if (userClientSubscriptions.length > 0) {
