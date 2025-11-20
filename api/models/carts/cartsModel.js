@@ -381,6 +381,28 @@ export const getLastCartItemBought = async (idUser, idArticle) => {
     return rows;
 };
 
+export const getArticleReviewUser = async (idUser, idArticle) => {
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            ar.id,
+            ar.user_public_name,
+            ar.title,
+            ar.rating,
+            ar.comment,
+            ar.id_article,
+            ar.id_user,
+            JSON_ARRAYAGG(ari.image) AS images
+        FROM articles_reviews AS ar
+        LEFT JOIN articles_reviews_images AS ari ON(ari.id_review = ar.id)
+        WHERE ar.id_user = ? AND ar.id_article = ?
+        GROUP BY ar.id
+        LIMIT 1`,
+        [idUser, idArticle]
+    );
+    return rows;
+};
+
 export const getOrders = async (status) => {
     const statusArray = status.split(",");
     const statusQuery = statusArray.map(() => "?").join(",");

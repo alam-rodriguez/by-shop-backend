@@ -82,6 +82,7 @@ import {
     updateReviewStatusController,
 } from "../../controllers/articles/articlesViewsController.js";
 import { getArticlesOrderByIdCartController } from "../../controllers/articles/articlesCarts.js";
+import { getArticleReviewUserController } from "../../controllers/articles/articlesReviews.js";
 
 // TODO: HACER ENDPOINT PARA CAMBIAR LA CANTIDAD DE UN ARTICULOS DISPONLIBLES
 
@@ -99,6 +100,7 @@ router.post("/reviews-article-options", createArticleReviewOptionController);
 router.post("/reviews-images", createArticleReviewImageController);
 router.get("/reviews/:id_article", getArticleReviewsController);
 router.get("/reviews-article-data/:id_article", getArticleReviewsByUserDataController);
+router.get("/review-user/:id_user/:id_article", getArticleReviewUserController);
 
 router.get("/requests-reviews-articles", getRequestsReviewsController);
 router.get("/requests-reviews-articles/:id_shop", getRequestsReviewsByShopController);
