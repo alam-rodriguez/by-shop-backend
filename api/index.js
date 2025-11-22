@@ -28,18 +28,16 @@ app.use(
         origin: [
             "http://localhost:3000",
             "http://192.168.16.63:3000",
-            "http://192.168.16.63:8080", // <--- IMPORTANTE agregar este
+            "http://192.168.16.63:8080",
             "https://f25d1c4a178a.ngrok-free.app",
             "https://33105c2a514f.ngrok-free.app",
             "http://192.168.16.63",
             "http://172.25.184.72:3000",
-            "https://5e24b7e57dd5.ngrok-free.app/",
+            "https://5e24b7e57dd5.ngrok-free.app",
             "http://64.227.53.125:3000",
-            "https://9425967bc6e4.ngrok-free.app/",
-            "https://byshop.online/",
-            "https://api.byshop.online/",
+            "https://9425967bc6e4.ngrok-free.app",
+            "https://byshop.online",
         ],
-
         credentials: true,
     })
 );
