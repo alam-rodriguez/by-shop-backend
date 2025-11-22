@@ -37,6 +37,7 @@ app.use(
             "http://64.227.53.125:3000",
             "https://9425967bc6e4.ngrok-free.app/",
             "https://byshop.online/",
+            "https://api.byshop.online/",
         ],
 
         credentials: true,
