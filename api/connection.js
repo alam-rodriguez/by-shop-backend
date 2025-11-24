@@ -18,11 +18,17 @@ async function connectWithRetry() {
     let connection;
     for (let i = 0; i < MAX_RETRIES; i++) {
         try {
-            connection = await mysql.createConnection({
-                // host: "mysql",
-                // user: "root",
-                // password: "123456789",
-                // database: "francarlos_comunicaciones",
+            // connection = await mysql.createConnection({
+            //     // host: "mysql",
+            //     // user: "root",
+            //     // password: "123456789",
+            //     // database: "francarlos_comunicaciones",
+            //     host: connectionEnvironments.host, // Host de tu base de datos (puede ser una IP o dominio)
+            //     user: connectionEnvironments.user, // Usuario de la base de datos
+            //     password: connectionEnvironments.password, // Contraseña del usuario
+            //     database: connectionEnvironments.database, // Nombre de la base de datos
+            // });
+            connection = mysql.createPool({
                 host: connectionEnvironments.host, // Host de tu base de datos (puede ser una IP o dominio)
                 user: connectionEnvironments.user, // Usuario de la base de datos
                 password: connectionEnvironments.password, // Contraseña del usuario
