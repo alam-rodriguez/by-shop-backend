@@ -563,3 +563,17 @@ export const getArticlesByShopId = async (idShop) => {
     const [rows] = await connection.execute(`SELECT * FROM articles WHERE id_shop = ? AND status = 1`, [idShop]);
     return rows;
 };
+
+export const getArticlesFromHomeCategoryForApp = async (home_category_id) => {
+    const [rows] = await connection.execute(
+        `SELECT 
+            a.*
+        FROM home_category_store hcs
+        LEFT JOIN articles a ON (a.id = hcs.store_id)
+        WHERE hcs.home_category_id = ? AND a.status = 1 AND hcs.status = 1 AND a.status = 1
+        ORDER BY hcs.top DESC
+    `,
+        [home_category_id]
+    );
+    return rows;
+};

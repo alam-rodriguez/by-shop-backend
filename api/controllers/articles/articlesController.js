@@ -17,6 +17,7 @@ import {
     getArticlesCanBeInterested,
     getArticlesFromDirectCategoriesForApp,
     getArticlesFromGeneralCategoryForApp,
+    getArticlesFromHomeCategoryForApp,
     getArticlesFromShop,
     getArticlesInUserList,
     getArticlesOfGeneralCategoryGroupForApp,
@@ -417,6 +418,19 @@ export const getArticlesByShopIdController = async (req, res) => {
         const articles = await getArticlesByShopId(idShop);
         if (articles.length > 0) res.json({ message: "Articles Founds", data: articles });
         else res.json({ message: "Articles Not Founds", data: [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getArticlesFromHomeCategoryForAppController = async (req, res) => {
+    try {
+        const homeCategoryId = req.params.home_category_id;
+        const articles = await getArticlesFromHomeCategoryForApp(homeCategoryId);
+        return res.json({
+            message: articles.length > 0 ? "Articles From Home Category Founds" : "Articles From Home Category Not Founds",
+            data: articles,
+        });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

@@ -20,6 +20,7 @@ import {
     getArticlesController,
     getArticlesFromDirectCategoriesForAppController,
     getArticlesFromGeneralCategoryForAppController,
+    getArticlesFromHomeCategoryForAppController,
     getArticlesFromShopController,
     getArticlesInUserListController,
     getArticlesOfGeneralCategoryGroupForAppController,
@@ -164,6 +165,7 @@ router.get("/list-user/:id", getArticlesInUserListController);
 
 router.get("/get-articles-from-direct-category/:id", getArticlesFromDirectCategoriesForAppController);
 router.get("/get-articles-from-general-category/:id_category", getArticlesFromGeneralCategoryForAppController);
+router.get("/get-articles-from-home-category/:home_category_id", getArticlesFromHomeCategoryForAppController);
 
 router.get("/get-articles-can-be-interested/:id_article", getArticlesCanBeInterestedController);
 

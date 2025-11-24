@@ -65,7 +65,15 @@ export const getGeneralCategoriesOfArticle = async (idArticle) => {
 };
 
 export const getCategoryById = async (id) => {
-    const [rows] = await connection.execute("SELECT * FROM categories WHERE id = ? LIMIT 1", [id]);
+    const [rows] = await connection.execute(
+        `
+        (SELECT id, name FROM categories WHERE id = ?)
+        UNION ALL 
+        (SELECT id, name FROM home_categories WHERE id = ?)
+        LIMIT 1;
+        `,
+        [id, id]
+    );
     return rows;
 };
 
