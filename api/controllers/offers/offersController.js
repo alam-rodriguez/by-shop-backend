@@ -12,11 +12,23 @@ import {
     updateOfferArticleOption,
     deleteOfferCategory,
     deleteOfferArticle,
+    getOffersByShopId,
 } from "../../models/offers/offersModel.js";
 
 export const getOffersController = async (req, res) => {
     try {
         const offers = await getOffers();
+        if (offers.length > 0) res.status(200).json({ message: "Offers Found", data: offers });
+        else res.json({ message: "Offers Not Found", data: [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getOffersByShopIdController = async (req, res) => {
+    try {
+        const { shop_id } = req.params;
+        const offers = await getOffersByShopId(shop_id);
         if (offers.length > 0) res.status(200).json({ message: "Offers Found", data: offers });
         else res.json({ message: "Offers Not Found", data: [] });
     } catch (error) {

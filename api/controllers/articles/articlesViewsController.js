@@ -8,6 +8,7 @@ import {
     getRequestsReviews,
     getRequestsReviewsByShop,
     getReviewById,
+    updateArticleReview,
     updateReviewStatus,
 } from "../../models/articles/articlesReviewsModel.js";
 
@@ -17,6 +18,17 @@ export const createArticleReviewController = async (req, res) => {
         const articleReview = await createArticleReview(id, id_user, id_article, user_public_name, title, rating, comment, status);
         if (articleReview) res.status(201).json({ message: "Article Review Created", data: req.body });
         else res.json({ message: "Article Review Not Created", data: {} });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateArticleReviewController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { user_public_name, title, rating, comment, status } = req.body;
+        const articleReview = await updateArticleReview(id, user_public_name, title, rating, comment, status);
+        return res.json({ message: articleReview ? "Article Review Updated" : "Article Review Not Updated", data: req.body });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

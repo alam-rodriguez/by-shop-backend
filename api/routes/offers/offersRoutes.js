@@ -2,18 +2,24 @@ import express from "express";
 const router = express.Router();
 
 // Controllers
-import { 
-  createOfferController, createOfferCategoryController, 
-  createOfferArticleController, createOfferArticleOptionController, 
-  getOffersController, getOfferController, 
-  updateOfferController, updateOfferCategoryController, 
-  updateOfferArticleController, updateOfferArticleOptionController, 
-  deleteOfferCategoryController,
-  deleteOfferArticleController
+import {
+    createOfferController,
+    createOfferCategoryController,
+    createOfferArticleController,
+    createOfferArticleOptionController,
+    getOffersController,
+    getOfferController,
+    updateOfferController,
+    updateOfferCategoryController,
+    updateOfferArticleController,
+    updateOfferArticleOptionController,
+    deleteOfferCategoryController,
+    deleteOfferArticleController,
+    getOffersByShopIdController,
 } from "../../controllers/offers/offersController.js";
 
 router.post("/", createOfferController);
-router.put("/:id", updateOfferController);  
+router.put("/:id", updateOfferController);
 
 router.post("/categories", createOfferCategoryController);
 router.put("/categories/:id", updateOfferCategoryController);
@@ -27,6 +33,8 @@ router.post("/articles-options", createOfferArticleOptionController);
 router.put("/articles-options/:id", updateOfferArticleOptionController);
 
 router.get("/", getOffersController);
+router.get("/shop/:shop_id", getOffersByShopIdController);
+
 router.get("/:id", getOfferController);
 
 export default router;

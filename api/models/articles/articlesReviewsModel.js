@@ -9,6 +9,14 @@ export const createArticleReview = async (id, id_user, id_article, user_public_n
     return rows.affectedRows > 0;
 };
 
+export const updateArticleReview = async (id, user_public_name, title, rating, comment, status) => {
+    const [rows] = await connection.execute(
+        `UPDATE articles_reviews SET user_public_name = ?, title = ?, rating = ?, comment = ?, status = ? WHERE id = ?;`,
+        [user_public_name, title, rating, comment, status, id]
+    );
+    return rows.affectedRows > 0;
+};
+
 export const createArticleReviewOption = async (id, id_review, id_option, id_value, status) => {
     const [rows] = await connection.execute(
         `INSERT INTO articles_reviews_options(id, id_review, id_option, id_value, status) 

@@ -18,6 +18,26 @@ export const getOffers = async () => {
     return rows;
 };
 
+export const getOffersByShopId = async (shop_id) => {
+    const [rows] = await connection.execute(
+        `SELECT 
+            o.id,
+            o.name,
+            o.description,
+            o.percent_discount,
+            o.image,
+            o.date_start,
+            o.date_end,
+            o.status,
+            o.created_at
+          FROM offers o
+          WHERE o.shop_id = ?
+        ;`,
+        [shop_id]
+    );
+    return rows;
+};
+
 export const getOffer = async (id) => {
     const [rows] = await connection.execute(
         `SELECT 

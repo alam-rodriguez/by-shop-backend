@@ -80,6 +80,7 @@ import {
     getRequestsReviewsByShopController,
     getRequestsReviewsController,
     getReviewByIdController,
+    updateArticleReviewController,
     updateReviewStatusController,
 } from "../../controllers/articles/articlesViewsController.js";
 import { getArticlesOrderByIdCartController } from "../../controllers/articles/articlesCarts.js";
@@ -97,6 +98,7 @@ router.patch("/change-quantity/:id", changeArticleQuantityController);
 
 // Reviews
 router.post("/reviews", createArticleReviewController);
+router.put("/reviews/:id", updateArticleReviewController);
 router.post("/reviews-article-options", createArticleReviewOptionController);
 router.post("/reviews-images", createArticleReviewImageController);
 router.get("/reviews/:id_article", getArticleReviewsController);
