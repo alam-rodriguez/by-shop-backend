@@ -35,6 +35,12 @@ export const createArticleReviewImage = async (id, id_review, image, status) => 
     return rows.affectedRows > 0;
 };
 
+export const deleteArticleReviewImage = async (ids) => {
+    const placeholders = ids.map(() => "?").join(",");
+    const [rows] = await connection.execute(`DELETE FROM articles_reviews_images WHERE id IN (${placeholders});`, ids);
+    return rows.affectedRows > 0;
+};
+
 export const getArticleReviews = async (id_article) => {
     const [rows] = await connection.execute(
         `SELECT 
@@ -62,7 +68,7 @@ export const getArticleReviews = async (id_article) => {
         LEFT JOIN articles_reviews_options aro ON (ar.id = aro.id_review)
         -- LEFT JOIN options o ON (o.id = co.id_option)
         -- LEFT JOIN options_values ov ON (aro.id_value = ov.id)
-        WHERE ar.id_article = ? AND ar.status in(1,2)
+        WHERE ar.id_article = ? AND ar.status <> 0
         GROUP BY ar.id
         ORDER BY ar.created_at DESC;`,
         [id_article]
@@ -76,7 +82,7 @@ export const getArticleReviewsByUserData = async (id_article) => {
             COUNT(id) AS total_reviews,
             IFNULL(AVG(rating), 0) AS average_rating
         FROM articles_reviews
-        WHERE id_article = ? AND status = 2
+        WHERE id_article = ? AND status <> 0
         `,
         [id_article]
     );

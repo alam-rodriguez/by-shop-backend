@@ -392,7 +392,13 @@ export const getArticleReviewUser = async (idUser, idArticle) => {
             ar.comment,
             ar.id_article,
             ar.id_user,
-            JSON_ARRAYAGG(ari.image) AS images
+            JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'image', ari.image,
+                    'id', ari.id
+                )
+            ) AS images
+            -- JSON_ARRAYAGG(ari.image) AS images
         FROM articles_reviews AS ar
         LEFT JOIN articles_reviews_images AS ari ON(ari.id_review = ar.id)
         WHERE ar.id_user = ? AND ar.id_article = ?

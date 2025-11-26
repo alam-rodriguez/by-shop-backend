@@ -3,6 +3,7 @@ import {
     createArticleReview,
     createArticleReviewImage,
     createArticleReviewOption,
+    deleteArticleReviewImage,
     getArticleReviews,
     getArticleReviewsByUserData,
     getRequestsReviews,
@@ -51,6 +52,17 @@ export const createArticleReviewImageController = async (req, res) => {
         const articleReviewImage = await createArticleReviewImage(id, id_review, image, status);
         if (articleReviewImage) res.status(201).json({ message: "Article Review Image Created", data: req.body });
         else res.json({ message: "Article Review Image Not Created", data: {} });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const deleteArticleReviewImageController = async (req, res) => {
+    try {
+        let ids = req.params.ids;
+        ids = ids.split(",");
+        const response = await deleteArticleReviewImage(ids);
+        return res.json({ message: response ? "Article Review Images Deleted" : "Article Review Images Not Deleted", data: req.body });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

@@ -75,6 +75,7 @@ import {
     createArticleReviewController,
     createArticleReviewImageController,
     createArticleReviewOptionController,
+    deleteArticleReviewImageController,
     getArticleReviewsByUserDataController,
     getArticleReviewsController,
     getRequestsReviewsByShopController,
@@ -101,6 +102,7 @@ router.post("/reviews", createArticleReviewController);
 router.put("/reviews/:id", updateArticleReviewController);
 router.post("/reviews-article-options", createArticleReviewOptionController);
 router.post("/reviews-images", createArticleReviewImageController);
+router.delete("/reviews-images/:ids", deleteArticleReviewImageController);
 router.get("/reviews/:id_article", getArticleReviewsController);
 router.get("/reviews-article-data/:id_article", getArticleReviewsByUserDataController);
 router.get("/review-user/:id_user/:id_article", getArticleReviewUserController);

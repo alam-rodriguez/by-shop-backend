@@ -25,6 +25,7 @@ import cors from "cors";
 // app.use(cors());
 app.use(
     cors({
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         origin: [
             "http://localhost:3000",
             "http://192.168.16.63:3000",
