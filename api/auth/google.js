@@ -85,7 +85,7 @@ export const googleCallback = async (req, res) => {
         if (emailUserExists) {
             const hasGoogleId = await userHasGoogleId(email, googleId);
             if (!hasGoogleId) {
-                const resUpdate = await updateUserGoogleId(email, googleId);
+                const resUpdate = await updateUserGoogleId(idUser, googleId, picture);
                 console.log(resUpdate);
                 console.log("GoogleId de usuario cambiado");
             }

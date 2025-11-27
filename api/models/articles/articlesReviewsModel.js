@@ -45,6 +45,7 @@ export const getArticleReviews = async (id_article) => {
     const [rows] = await connection.execute(
         `SELECT 
             ar.*,
+            u.picture AS user_picture,
             COALESCE((
                 SELECT JSON_ARRAYAGG(ari.image)
                 FROM articles_reviews_images ari
@@ -66,6 +67,7 @@ export const getArticleReviews = async (id_article) => {
         FROM articles_reviews ar
         -- LEFT JOIN articles_reviews_images ari ON (ar.id = ari.id_review)
         LEFT JOIN articles_reviews_options aro ON (ar.id = aro.id_review)
+        LEFT JOIN users u ON (u.id = ar.id_user)
         -- LEFT JOIN options o ON (o.id = co.id_option)
         -- LEFT JOIN options_values ov ON (aro.id_value = ov.id)
         WHERE ar.id_article = ? AND ar.status <> 0

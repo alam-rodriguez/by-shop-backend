@@ -45,8 +45,8 @@ export const updateUser = async (first_names, last_names, type, can_buy, email, 
     return result.affectedRows > 0;
 };
 
-export const updateUserGoogleId = async (email, googleId) => {
-    const [result] = await connection.execute(`UPDATE users SET google_id = ? WHERE id = ?`, [googleId, email]);
+export const updateUserGoogleId = async (userId, googleId, picture) => {
+    const [result] = await connection.execute(`UPDATE users SET google_id = ?, picture = ? WHERE id = ?`, [googleId, picture, userId]);
     return result.affectedRows > 0;
 };
 
