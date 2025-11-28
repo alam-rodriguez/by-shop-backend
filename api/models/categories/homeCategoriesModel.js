@@ -71,12 +71,17 @@ export const getHomeCategoriesForApp = async () => {
                 a.price,
                 a.description,
                 a.main_image,
+                JSON_OBJECT(
+                    'exchange_rate', cu.exchange_rate,
+                    'iso_code', cu.iso_code
+                ) AS currency,
                 ROW_NUMBER() OVER (
                     PARTITION BY hcs.home_category_id 
                     ORDER BY hcs.top DESC
                 ) AS rn
             FROM home_category_store hcs
             JOIN articles a ON a.id = hcs.store_id
+            LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
             WHERE hcs.status = 1
         )
         SELECT 
@@ -89,6 +94,7 @@ export const getHomeCategoriesForApp = async () => {
                         'name', r.name,
                         'price', r.price,
                         'description', r.description,
+                        'currency', r.currency,
                         'main_image', r.main_image
                     )
                 )

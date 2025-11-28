@@ -212,7 +212,11 @@ export const getArticleByIdForApp = async (id) => {
             s.name AS shop_name,
             s.logo AS shop_logo,
             s.id AS shop_id,
-            COUNT(DISTINCT cbi.id) AS total_sales
+            COUNT(DISTINCT cbi.id) AS total_sales,
+            JSON_OBJECT(
+                'exchange_rate', cu.exchange_rate,
+                'iso_code', cu.iso_code
+            ) AS currency
             -- (
             --     CASE WHEN EXISTS (SELECT id FROM offers_articles oa WHERE oa.id_article = a.id AND )
             --     THEN (SELECT percent_discount FROM offers_articles oa WHERE oa.id_article = a.id LIMIT 1)
@@ -229,6 +233,7 @@ export const getArticleByIdForApp = async (id) => {
         LEFT JOIN shops s ON (s.id = a.id_shop)
         LEFT JOIN carts c ON (c.id_article = a.id AND c.status = 5)
         LEFT JOIN carts_bought_items cbi ON (cbi.id_cart = c.id AND cbi.status = 1)
+        LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
         WHERE a.id = '${id}'
         GROUP BY a.id
     `);
@@ -442,9 +447,14 @@ export const getArticlesFromDirectCategoriesForApp = async (id_category) => {
     const [rows] = await connection.execute(`SELECT 
             a.*,
             COALESCE(AVG(rating), 0) AS average_stars,
-            COUNT(DISTINCT ar.id) AS total_reviews
+            COUNT(DISTINCT ar.id) AS total_reviews,
+            JSON_OBJECT(
+                'exchange_rate', cu.exchange_rate,
+                'iso_code', cu.iso_code
+            ) AS currency
         FROM articles a
         LEFT JOIN articles_reviews ar ON (ar.id_article = a.id)
+        LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
         WHERE a.id_direct_category = '${id_category}' AND a.status = 1
         GROUP BY a.id
     `);
@@ -567,9 +577,14 @@ export const getArticlesByShopId = async (idShop) => {
 export const getArticlesFromHomeCategoryForApp = async (home_category_id) => {
     const [rows] = await connection.execute(
         `SELECT 
-            a.*
+            a.*,
+            JSON_OBJECT(
+                'exchange_rate', cu.exchange_rate,
+                'iso_code', cu.iso_code
+            ) AS currency
         FROM home_category_store hcs
         LEFT JOIN articles a ON (a.id = hcs.store_id)
+        LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
         WHERE hcs.home_category_id = ? AND a.status = 1 AND hcs.status = 1 AND a.status = 1
         ORDER BY hcs.top DESC
     `,

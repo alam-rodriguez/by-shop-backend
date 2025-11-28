@@ -167,8 +167,6 @@ export const getArticlesOfGeneralCategoryGroupForAppController = async (req, res
 };
 
 export const getArticleByIdForAppController = async (req, res) => {
-    console.log("first");
-
     try {
         const id = req.params.id;
         const article = await getArticleByIdForApp(id);
