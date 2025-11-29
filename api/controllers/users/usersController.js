@@ -297,11 +297,11 @@ export const getUserCurrencyOrMainCurrency = async (req, res) => {
         const idUser = req.session.id;
         const dataUser = await getUserById(idUser);
 
-        if (!dataUser) return res.json({ data: {}, message: "User Not Found" });
+        // if (!dataUser) return res.json({ data: {}, message: "User Not Found" });
 
         let currency;
 
-        if (dataUser.id_currency) currency = (await getCurrenciesById(dataUser.id_currency))[0];
+        if (dataUser?.id_currency) currency = (await getCurrenciesById(dataUser.id_currency))[0];
         else currency = (await getMainCurrency())[0];
 
         res.json({ data: currency, message: "user currency found" });
