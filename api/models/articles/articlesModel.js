@@ -570,7 +570,20 @@ export const changeArticleQuantity = async (id, quantity) => {
 };
 
 export const getArticlesByShopId = async (idShop) => {
-    const [rows] = await connection.execute(`SELECT * FROM articles WHERE id_shop = ? AND status = 1`, [idShop]);
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            a.*,
+            JSON_OBJECT(
+                'exchange_rate', cu.exchange_rate,
+                'iso_code', cu.iso_code
+            ) AS currency
+        FROM articles AS a 
+        LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
+        WHERE a.id_shop = ? AND a.status = 1
+    `,
+        [idShop]
+    );
     return rows;
 };
 

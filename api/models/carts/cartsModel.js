@@ -68,6 +68,7 @@ export const getCartUser = async (id) => {
                 a.description AS description,
                 a.name,
                 a.price AS price,
+                a.quantity AS stock,
                 a.quantity AS article_quantity,
                 a.main_image AS article_image,
                 COALESCE(GROUP_CONCAT(DISTINCT o.name SEPARATOR '/'), '') AS options,
