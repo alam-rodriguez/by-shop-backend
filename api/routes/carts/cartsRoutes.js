@@ -12,6 +12,7 @@ import {
     getCartItemOptionsController,
     getCartItemsUserForBuyController,
     getCartItemsUserSavedForLaterController,
+    getCartUserArticlesCannotBuyController,
     getCartUserController,
     getLastCartItemBoughtController,
     getOrderByIdCartController,
@@ -44,6 +45,8 @@ router.get("/items-options/:id_cart", getCartItemOptionsController);
 router.put("/items-options/:id", updateCartItemOptionController);
 
 router.get("/:id", getCartUserController);
+router.get("/:id/cannot-buy", getCartUserArticlesCannotBuyController);
+
 router.get("/saved-for-later/:id", getCartItemsUserSavedForLaterController);
 router.get("/ready-to-buy/:id", getCartItemsUserForBuyController);
 

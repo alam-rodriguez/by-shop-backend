@@ -10,6 +10,7 @@ import {
     getCartItemsUserForBuy,
     getCartItemsUserSavedForLater,
     getCartUser,
+    getCartUserArticlesCannotBuy,
     getLastCartItemBought,
     getOrderById,
     getOrderByIdCart,
@@ -86,6 +87,17 @@ export const getCartUserController = async (req, res) => {
     try {
         const id = req.params.id;
         const cart = await getCartUser(id);
+        if (cart.length > 0) res.json({ data: cart, message: "Cart Fount" });
+        else res.json({ data: [], message: "Cart Not Fount" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getCartUserArticlesCannotBuyController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const cart = await getCartUserArticlesCannotBuy(id);
         if (cart.length > 0) res.json({ data: cart, message: "Cart Fount" });
         else res.json({ data: [], message: "Cart Not Fount" });
     } catch (error) {

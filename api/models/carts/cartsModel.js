@@ -134,7 +134,93 @@ export const getCartUser = async (id) => {
         LEFT JOIN options_values ov ON (ov.id = co.id_value)
         LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
         LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
-        WHERE c.id_user = ? AND c.status IN (1, 2) AND a.status =1
+        WHERE c.id_user = ? AND c.status IN (1, 2) AND a.status = 1 AND a.quantity >= c.quantity
+        GROUP BY c.id
+        ORDER BY c.created_at DESC
+        `,
+        [id]
+    );
+    return rows;
+};
+
+export const getCartUserArticlesCannotBuy = async (id) => {
+    const [rows] = await connection.execute(
+        `SELECT 
+                c.id AS id,
+                c.status AS status,
+                c.quantity AS quantity,
+                c.created_at AS created_at,
+                a.id AS id_article,
+                a.description AS description,
+                a.name,
+                a.price AS price,
+                a.quantity AS stock,
+                a.quantity AS article_quantity,
+                a.main_image AS article_image,
+                COALESCE(GROUP_CONCAT(DISTINCT o.name SEPARATOR '/'), '') AS options,
+                COALESCE(GROUP_CONCAT(DISTINCT ov.value SEPARATOR '/'), '') AS 'values',
+                COALESCE(SUM(oa.price), 0) AS price_options,
+                cu.symbol,
+                cu.exchange_rate,
+                cu.iso_code,
+                (
+                    SELECT JSON_OBJECT(
+                        'id', o.id,
+                        'name', o.name,
+                        'percent_discount', o.percent_discount,
+                        'prioridad', o.prioridad,
+                        'date_start', o.date_start,
+                        'date_end', o.date_end
+                    )
+                    FROM (
+                        SELECT o.id, o.name, o.percent_discount, 1 AS prioridad, o.date_start, o.date_end
+                        FROM offers_articles oa
+                        JOIN offers o ON o.id = oa.id_offer
+                        WHERE oa.id_article = c.id_article AND (o.shop_id = a.id_shop OR o.shop_id IS NULL)
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 2 AS prioridad, o.date_start, o.date_end
+                        FROM articles a2
+                        JOIN offers_categories oc ON oc.id_category = a2.id_direct_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE a2.id = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 3 AS prioridad, o.date_start, o.date_end
+                        FROM articles a3
+                        JOIN offers_categories oc ON oc.id_category = a3.id_indirect_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE a3.id = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+                        UNION ALL
+
+                        SELECT o.id, o.name, o.percent_discount, 4 AS prioridad, o.date_start, o.date_end
+                        FROM articles_general_categories agc
+                        JOIN offers_categories oc ON oc.id_category = agc.id_general_category
+                        JOIN offers o ON o.id = oc.id_offer
+                        WHERE agc.id_article = c.id_article
+                        AND o.status = 1
+                        AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+                    ) o
+                    ORDER BY prioridad ASC
+                    LIMIT 1
+                ) AS offer
+        FROM carts c
+        LEFT JOIN articles a ON (a.id = c.id_article)
+        LEFT JOIN cart_item_options co ON (co.id_cart = c.id AND co.status = 1)
+        LEFT JOIN options o ON (o.id = co.id_option)
+        LEFT JOIN options_values ov ON (ov.id = co.id_value)
+        LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
+        LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
+        WHERE c.id_user = ? AND (c.status NOT IN (1, 2) OR a.status != 1 OR a.quantity < c.quantity)
         GROUP BY c.id
         ORDER BY c.created_at DESC
         `,
@@ -258,7 +344,8 @@ export const getCartItemsUserForBuy = async (id) => {
         LEFT JOIN options_values ov ON (ov.id = co.id_value)
         LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
         LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
-        WHERE c.id_user = ? AND c.status = 1 AND a.status =1
+        -- WHERE c.id_user = ? AND c.status = 1 AND a.status =1
+        WHERE c.id_user = ? AND c.status = 1 AND a.status = 1 AND a.quantity >= c.quantity
         GROUP BY c.id
         ORDER BY c.created_at DESC
         `,
