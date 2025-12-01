@@ -210,6 +210,7 @@ export const getArticleByIdForApp = async (id) => {
             COALESCE(AVG(rating), 0) AS average_stars,
             COUNT(DISTINCT ar.id) AS total_reviews,
             s.name AS shop_name,
+            s.name AS name_shop,
             s.logo AS shop_logo,
             s.id AS shop_id,
             COUNT(DISTINCT cbi.id) AS total_sales,
