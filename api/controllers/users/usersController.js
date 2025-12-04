@@ -8,6 +8,7 @@ import {
     getUserById,
     getUsers,
     getUserShop,
+    setUserShop,
     shopHasAdmin,
     updateUser,
     updateUserEmailVerified,
@@ -73,6 +74,19 @@ export const changeUserTypeController = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
+export const setUserShopController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const shopId = req.body.shop_id;
+        const response = await setUserShop(id, shopId);
+        return res.json({ data: null, message: response ? "User Shop Changed" : "User Shop Not Changed" });
+        // else res.json({ data: false, message: "User Type Not Changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
 export const changeUserCanBuyController = async (req, res) => {
     try {
         const id = req.params.id;

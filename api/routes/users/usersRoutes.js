@@ -13,6 +13,7 @@ import {
     getUserCurrencyOrMainCurrency,
     getUsersController,
     getUserShopController,
+    setUserShopController,
     updateUserController,
     updateUserEmailVerifiedController,
     updateUserIdAddressForCartController,
@@ -44,6 +45,7 @@ router.put("/:id", updateUserController);
 router.patch("/change-type/:id", changeUserTypeController);
 // router.patch("/change-can_buy/:id", changeUserCanBuyController);
 router.patch("/change-can-buy/:id", changeUserCanBuyController);
+router.patch("/set-shop/:id", setUserShopController);
 
 router.post("/addresses", createUserAddressController);
 router.put("/addresses/:id", updateUserAddressController);

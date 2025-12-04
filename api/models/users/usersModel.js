@@ -59,6 +59,11 @@ export const changeUserCanBuy = async (id, canBuy) => {
     return result.affectedRows > 0;
 };
 
+export const setUserShop = async (id, shopId) => {
+    const [result] = await connection.execute(`UPDATE users SET shop_id = ? WHERE id = ?`, [shopId, id]);
+    return result.affectedRows > 0;
+};
+
 // export const createUserAddress = async (
 //     id,
 //     id_user,

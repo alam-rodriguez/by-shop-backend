@@ -250,7 +250,7 @@ app.post("/api/seed", async (req, res) => {
                 name VARCHAR(255) NOT NULL,
                 description VARCHAR(255) NOT NULL,
                 logo VARCHAR(2083) NOT NULL,
-                type TINYINT NOT NULL,
+                type TINYINT NULL,
                 country_id char(36) NOT NULL,
                 province_id char(36) NOT NULL,
                 municipality_id char(36) NOT NULL,
@@ -263,6 +263,7 @@ app.post("/api/seed", async (req, res) => {
                 phone_number VARCHAR(20) NOT NULL,
                 latitude DECIMAL(10,8) NOT NULL,
                 longitude DECIMAL(11,8) NOT NULL,
+                plan_id CHAR(36) NOT NULL,
                 status TINYINT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -767,6 +768,7 @@ app.post("/api/seed", async (req, res) => {
                 google_id VARCHAR(50),
                 picture VARCHAR(2083),
                 status TINYINT NOT NULL DEFAULT 1,
+                shop_id char(36),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
@@ -1003,6 +1005,19 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
+        // await connection.execute(`
+        //     CREATE TABLE articles_advertisements (
+        //         id CHAR(36) NOT NULL PRIMARY KEY,
+        //         advertisement_id CHAR(36) NOT NULL,
+        //         article_id CHAR(36) NOT NULL,
+        //         link VARCHAR(500) NOT NULL,
+        //         sort_order INT NOT NULL,
+        //         status TINYINT DEFAULT 1,
+        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        //         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        //     );
+        // `);
+
         await connection.execute(`  
             CREATE TABLE home_categories (
                 id CHAR(36) NOT NULL PRIMARY KEY,
@@ -1025,17 +1040,33 @@ app.post("/api/seed", async (req, res) => {
         `);
 
         // await connection.execute(`
-        //     CREATE TABLE articles_advertisements (
+        //     CREATE TABLE shops_plans (
         //         id CHAR(36) NOT NULL PRIMARY KEY,
-        //         advertisement_id CHAR(36) NOT NULL,
-        //         article_id CHAR(36) NOT NULL,
-        //         link VARCHAR(500) NOT NULL,
-        //         sort_order INT NOT NULL,
+        //         name VARCHAR(100) NOT NULL,
+        //         description VARCHAR(255) NULL,
+        //         -- sort_order INT NOT NULL,
+        //         price DECIMAL(10,2) NOT NULL,
+        //         duration_days INT NOT NULL,
+        //         commission_rate DECIMAL(5,2) NOT NULL,
         //         status TINYINT DEFAULT 1,
+        //         `rank` INT NOT NULL,
         //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         //         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         //     );
         // `);
+
+        await connection.execute(`
+            CREATE TABLE shops_codes (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                shops_plans_id CHAR(36) NOT NULL,
+                status TINYINT DEFAULT 1,
+                code VARCHAR(100) NOT NULL UNIQUE,
+                used_at TIMESTAMP NULL DEFAULT NULL,
+                used_by_shop_id CHAR(36) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        `);
 
         res.send("Base de datos creada");
     } catch (error) {
