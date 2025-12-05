@@ -220,7 +220,7 @@ export const getCartUserArticlesCannotBuy = async (id) => {
         LEFT JOIN options_values ov ON (ov.id = co.id_value)
         LEFT JOIN options_articles oa ON (oa.id = co.id_article_option)
         LEFT JOIN currencies AS cu ON (cu.id = a.id_currency)
-        WHERE c.id_user = ? AND (c.status NOT IN (1, 2) OR a.status != 1 OR a.quantity < c.quantity)
+        WHERE c.id_user = ? AND c.status IN (1, 2) AND ( a.status != 1 OR a.quantity < c.quantity)
         GROUP BY c.id
         ORDER BY c.created_at DESC
         `,

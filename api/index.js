@@ -1068,6 +1068,27 @@ app.post("/api/seed", async (req, res) => {
             );
         `);
 
+        await connection.execute(`
+            CREATE TABLE chats (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                status TINYINT DEFAULT 1,               
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE chat_participants (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                chat_id CHAR(36) NOT NULL,
+                user_id CHAR(36) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE chat_messages (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                chat_id CHAR(36) NOT NULL,
+                sender_id CHAR(36) NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
         res.send("Base de datos creada");
     } catch (error) {
         res.send("No se puede crear la bbdd, error: " + error.message);
