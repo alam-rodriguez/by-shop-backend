@@ -9,6 +9,7 @@ import {
     createChatParticipantController,
     getChatIdByUsersController,
     getChatMessagesController,
+    getChatOtherparticipantInfoController,
     getChatsByUserController,
 } from "../../controllers/chats/chatsControllers.js";
 
@@ -22,6 +23,7 @@ router.post("/message", createChatMessageController);
 router.get("/:chat_id", getChatMessagesController);
 router.get("/get-id/:sender_id/:receiver_id", getChatIdByUsersController);
 router.get("/user/:user_id", getChatsByUserController);
+router.get("/participants/other-participant-info/:id", getChatOtherparticipantInfoController);
 
 // router.put("/:id", updateCurrencyController);
 

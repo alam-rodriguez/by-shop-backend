@@ -8,6 +8,7 @@ import {
     existsChatParticipant,
     getChatIdByUsers,
     getChatMessages,
+    getChatOtherparticipantInfo,
     getChatsByUser,
 } from "../../models/chats/chatsModels.js";
 
@@ -73,6 +74,19 @@ export const getChatsByUserController = async (req, res) => {
         return res.json({
             message: chats.length > 0 ? "Chats Founds" : "Chats Not Founds",
             data: chats,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getChatOtherparticipantInfoController = async (req, res) => {
+    try {
+        const OtherparticipantId = req.params.id;
+        const OtherparticipantInfo = await getChatOtherparticipantInfo(OtherparticipantId);
+        return res.json({
+            message: OtherparticipantInfo.length > 0 ? "Chat Other Participant Info Found" : "Chat Other Participant Info Not Found",
+            data: OtherparticipantInfo[0],
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });

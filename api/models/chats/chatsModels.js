@@ -85,6 +85,20 @@ export const getChatsByUser = async (userId) => {
     return rows;
 };
 
+export const getChatOtherparticipantInfo = async (OtherparticipantId) => {
+    const [rows] = await connection.execute(
+        `
+            SELECT
+                CONCAT_WS(' ', u.first_name, u.last_name) AS name
+            FROM users AS u 
+            WHERE id = ? 
+            LIMIT 1;
+    `,
+        [OtherparticipantId]
+    );
+    return rows;
+};
+
 // export const getCurrencies = async () => {
 //     const [rows] = await connection.execute("SELECT * FROM currencies");
 //     return rows;
