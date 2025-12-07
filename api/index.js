@@ -3,6 +3,50 @@ export const app = express();
 import cookieParser from "cookie-parser";
 import "./web-push/webPush.js";
 
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+const server = createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
+
+// WebSockets funcionando
+// io.on("connection", (socket) => {
+//     console.log("Cliente conectado", socket.id);
+// });
+
+// io.on("connection", (socket) => {
+//     // usuario entra a un chat
+//     socket.on("joinChat", (chatId) => {
+//         socket.join(`chat_${chatId}`);
+//         console.log(`Socket ${socket.id} joined room chat_${chatId}`);
+//         io.to(chatId).emit("newMessage", savedMessage);
+//     });
+// });
+// io.on("connection", (socket) => {
+//     socket.on("joinChat", (chatId) => {
+//         socket.join(`chat_${chatId}`);
+//         console.log(`Socket ${socket.id} joined room chat_${chatId}`);
+//     });
+
+//     socket.on("sendMessage", (data) => {
+//         const { chatId, senderId, message } = data;
+
+//         // Solo se propaga a los participantes
+//         io.to(`chat_${chatId}`).emit("newMessage", {
+//             chatId,
+//             senderId,
+//             message,
+//         });
+//     });
+// });
+
+socketHandler(io);
+
 import jwt from "jsonwebtoken";
 
 import { connectionForCreate, connectToDatabase } from "./connection.js";
@@ -65,6 +109,8 @@ import deliveriesRoutes from "./routes/delivery/deliveryRoutes.js";
 import locationsRoutes from "./routes/locations/locationsRoutes.js";
 import webPushNotification from "./routes/web-push/webPushRoutes.js";
 import advertisementsRoutes from "./routes/advertisements/advertisementsRoutes.js";
+import chatsRoutes from "./routes/chats/chatsRoutes.js";
+import { socketHandler } from "./sockets/index.js";
 
 // Middlewares
 // app.use((req, res, next) => {
@@ -181,6 +227,9 @@ app.use("/api/web-push-notification", webPushNotification);
 
 // AdvertisementsRoutes
 app.use("/api/advertisements", advertisementsRoutes);
+
+// Chats
+app.use("/api/chats", chatsRoutes);
 
 app.get("/api/exist", async (req, res) => {
     try {
@@ -1108,6 +1157,6 @@ app.delete("/api/delete", async (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, "0.0.0.0", () => {
+server.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
