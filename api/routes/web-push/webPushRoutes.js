@@ -23,4 +23,6 @@ router.post("/send-notification-for-news-orders/:order_id", sendAdminShopsPushNo
 router.post("/send-notification-client-update-status-order/:user_id", sendPushNotificationToClientController);
 router.post("/send-notification-for-new-order-to-deliveries", sendPushNotificationToDeliveriesController);
 
+router.post("/chats/send-notification-for-new-message/:user_id", sendPushNotificationToClientController);
+
 export default router;
