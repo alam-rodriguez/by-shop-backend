@@ -110,6 +110,8 @@ import locationsRoutes from "./routes/locations/locationsRoutes.js";
 import webPushNotification from "./routes/web-push/webPushRoutes.js";
 import advertisementsRoutes from "./routes/advertisements/advertisementsRoutes.js";
 import chatsRoutes from "./routes/chats/chatsRoutes.js";
+import periodsRoutes from "./routes/periods/periodsRoutes.js";
+
 import { socketHandler } from "./sockets/index.js";
 
 // Middlewares
@@ -230,6 +232,9 @@ app.use("/api/advertisements", advertisementsRoutes);
 
 // Chats
 app.use("/api/chats", chatsRoutes);
+
+// Periods
+app.use("/api/periods", periodsRoutes);
 
 app.get("/api/exist", async (req, res) => {
     try {
@@ -1136,6 +1141,42 @@ app.post("/api/seed", async (req, res) => {
                 message TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE periods (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                start_date DATE NOT NULL,
+                end_date DATE NOT NULL,
+                status TINYINT DEFAULT 1, 
+                -- status ENUM('open', 'closed') DEFAULT 'open',
+                -- Fecha real del cierre contable
+                closed_at DATETIME NULL,
+                -- Campos opcionales pero muy útiles
+                total_gross DECIMAL(10,2) DEFAULT 0,   -- ventas brutas del periodo
+                total_commission DECIMAL(10,2) DEFAULT 0, -- comisiones totales
+                total_net DECIMAL(10,2) DEFAULT 0, -- lo que se pagará a tiendas (suma de todos los payouts)
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE payouts (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                period_id CHAR(36) NOT NULL,
+                shop_id CHAR(36) NOT NULL, -- la tienda a la que se le paga
+                amount DECIMAL(10,2) NOT NULL,          -- total a pagar a esa tienda
+                commission DECIMAL(10,2) DEFAULT 0,     -- si quieres guardar la comisión calculada
+                net_amount DECIMAL(10,2) NOT NULL,      -- amount - commission
+                paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago
+            );
+            -- CREATE TABLE delivery_payouts (
+            --     id INT AUTO_INCREMENT PRIMARY KEY,
+            --     period_id INT NOT NULL,
+            --     driver_id INT NOT NULL,
+            --     orders_count INT DEFAULT 0,
+            --     gross_amount DECIMAL(10,2),  -- sum(delivery_cost)
+            --     status ENUM('pending','paid') DEFAULT 'pending',
+            --     paid_at DATETIME NULL,
+            --     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            -- );
         `);
 
         res.send("Base de datos creada");
