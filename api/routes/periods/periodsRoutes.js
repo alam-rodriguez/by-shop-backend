@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 
 // Controllers
-import { createPeriodController } from "../../controllers/periods/periodsControllers.js";
+import { createPeriodController, getPeriodActiveController } from "../../controllers/periods/periodsControllers.js";
 // import {
 //     createSearchHistoryController,
 //     getSearchHistoryByIdUserController,
@@ -11,6 +11,8 @@ import { createPeriodController } from "../../controllers/periods/periodsControl
 
 // router.get("/:id_user", getSearchHistoryByIdUserController);
 router.post("/", createPeriodController);
+router.get("/active", getPeriodActiveController);
+
 // router.patch("/update-status/:id", updateSearchHistoryStatusController);
 
 export default router;

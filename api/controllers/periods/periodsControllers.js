@@ -1,4 +1,4 @@
-import { createPeriod } from "../../models/periods/periodsModels.js";
+import { createPeriod, getPeriodActive } from "../../models/periods/periodsModels.js";
 
 export const createPeriodController = async (req, res) => {
     try {
@@ -9,3 +9,29 @@ export const createPeriodController = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
+export const getPeriodActiveController = async (req, res) => {
+    try {
+        const response = await getPeriodActive();
+        return res.json({
+            data: response.length > 0 ? response[0] : null,
+            message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// export const getPeriodActiveController = async (req, res) => {
+//     try {
+//         const response = await getPeriodActive();
+//         return res.json({
+//             data: response.length > 0 ? response[0] : null,
+//             message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+//         });
+//     } catch (error) {
+//         res.status(500).json({ message: "Server Error", error: error.message });
+//     }
+// };
+
+// getPeriodActiveForShop;
