@@ -2,7 +2,16 @@ import express from "express";
 const router = express.Router();
 
 // Controllers
-import { createPeriodController, getPeriodActiveController } from "../../controllers/periods/periodsControllers.js";
+import {
+    createPeriodController,
+    createPeriodShopPayoutController,
+    getPeriodActiveController,
+    getPeriodActiveForAllShopController,
+    getPeriodActiveForShopController,
+    getPeriodsController,
+    getPeriodsForShopController,
+    getShopsPeriodActiveController,
+} from "../../controllers/periods/periodsControllers.js";
 // import {
 //     createSearchHistoryController,
 //     getSearchHistoryByIdUserController,
@@ -12,6 +21,12 @@ import { createPeriodController, getPeriodActiveController } from "../../control
 // router.get("/:id_user", getSearchHistoryByIdUserController);
 router.post("/", createPeriodController);
 router.get("/active", getPeriodActiveController);
+router.get("/active/by-shop/:shop_id", getPeriodActiveForShopController);
+router.get("/active/shops", getShopsPeriodActiveController);
+router.get("/active/all-shops", getPeriodActiveForAllShopController);
+router.post("/payouts/shops", createPeriodShopPayoutController);
+router.get("/", getPeriodsController);
+router.get("/by-shop/:shop_id", getPeriodsForShopController);
 
 // router.patch("/update-status/:id", updateSearchHistoryStatusController);
 

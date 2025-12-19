@@ -1,4 +1,14 @@
-import { createPeriod, getPeriodActive } from "../../models/periods/periodsModels.js";
+import {
+    createPeriod,
+    createPeriodShopPayout,
+    getPeriodActive,
+    getPeriodActiveForAllShop,
+    getPeriodActiveForShop,
+    getPeriods,
+    getPeriodsForShop,
+    getShopsPeriodActive,
+    shopPeriodPayout,
+} from "../../models/periods/periodsModels.js";
 
 export const createPeriodController = async (req, res) => {
     try {
@@ -22,16 +32,76 @@ export const getPeriodActiveController = async (req, res) => {
     }
 };
 
-// export const getPeriodActiveController = async (req, res) => {
-//     try {
-//         const response = await getPeriodActive();
-//         return res.json({
-//             data: response.length > 0 ? response[0] : null,
-//             message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
-//         });
-//     } catch (error) {
-//         res.status(500).json({ message: "Server Error", error: error.message });
-//     }
-// };
+export const getPeriodActiveForShopController = async (req, res) => {
+    try {
+        const shopId = req.params.shop_id;
+        const response = await getPeriodActiveForShop(shopId);
+        return res.json({
+            data: response.length > 0 ? response[0] : null,
+            message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
 
-// getPeriodActiveForShop;
+export const getShopsPeriodActiveController = async (req, res) => {
+    try {
+        const response = await getShopsPeriodActive();
+        return res.json({
+            data: response.length > 0 ? response : null,
+            message: response.length > 0 ? "Shops Period Active Found" : "Shops Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodActiveForAllShopController = async (req, res) => {
+    try {
+        const response = await getPeriodActiveForAllShop();
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const createPeriodShopPayoutController = async (req, res) => {
+    try {
+        const { id, period_id, shop_id, amount, commission, net_amount, currency_id } = req.body;
+        const periodPayout = await shopPeriodPayout(period_id, shop_id);
+        if (periodPayout.length > 0) return res.json({ data: req.body, message: "This Shop Was Payout For The Period" });
+        const response = await createPeriodShopPayout(id, period_id, shop_id, amount, commission, net_amount, currency_id);
+        return res.status(response ? 201 : 200).json({ data: req.body, message: response ? "Period Payout Created" : "Period Payout Not Created" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodsController = async (req, res) => {
+    try {
+        const response = await getPeriods();
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Periods Found" : "Periods Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodsForShopController = async (req, res) => {
+    try {
+        const shopId = req.params.shop_id;
+        const response = await getPeriodsForShop(shopId);
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Periods Shops Founds" : "Periods Shops Not Founds",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};

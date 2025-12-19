@@ -1165,7 +1165,9 @@ app.post("/api/seed", async (req, res) => {
                 amount DECIMAL(10,2) NOT NULL,          -- total a pagar a esa tienda
                 commission DECIMAL(10,2) DEFAULT 0,     -- si quieres guardar la comisión calculada
                 net_amount DECIMAL(10,2) NOT NULL,      -- amount - commission
-                paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago
+                currency_id char(36) NOT NULL,
+                paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago,
+                UNIQUE KEY uq_payouts_shop_period (shop_id, period_id)
             );
             -- CREATE TABLE delivery_payouts (
             --     id INT AUTO_INCREMENT PRIMARY KEY,
