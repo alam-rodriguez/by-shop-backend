@@ -4,6 +4,7 @@ import {
     getPeriodActive,
     getPeriodActiveForAllShop,
     getPeriodActiveForShop,
+    getPeriodById,
     getPeriods,
     getPeriodsForShop,
     getShopsPeriodActive,
@@ -26,6 +27,19 @@ export const getPeriodActiveController = async (req, res) => {
         return res.json({
             data: response.length > 0 ? response[0] : null,
             message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodByIdController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const response = await getPeriodById(id);
+        return res.json({
+            data: response.length > 0 ? response[0] : null,
+            message: response.length > 0 ? "Period Found" : "Period Not Found",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });

@@ -11,6 +11,7 @@ import {
     getPeriodsController,
     getPeriodsForShopController,
     getShopsPeriodActiveController,
+    getPeriodByIdController,
 } from "../../controllers/periods/periodsControllers.js";
 // import {
 //     createSearchHistoryController,
@@ -20,6 +21,7 @@ import {
 
 // router.get("/:id_user", getSearchHistoryByIdUserController);
 router.post("/", createPeriodController);
+
 router.get("/active", getPeriodActiveController);
 router.get("/active/by-shop/:shop_id", getPeriodActiveForShopController);
 router.get("/active/shops", getShopsPeriodActiveController);
@@ -27,6 +29,7 @@ router.get("/active/all-shops", getPeriodActiveForAllShopController);
 router.post("/payouts/shops", createPeriodShopPayoutController);
 router.get("/", getPeriodsController);
 router.get("/by-shop/:shop_id", getPeriodsForShopController);
+router.get("/:id", getPeriodByIdController);
 
 // router.patch("/update-status/:id", updateSearchHistoryStatusController);
 
