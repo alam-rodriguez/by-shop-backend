@@ -8,6 +8,7 @@ import {
     getPeriods,
     getPeriodsForShop,
     getShopsPeriodActive,
+    getShopsPeriodsByPeriodId,
     shopPeriodPayout,
 } from "../../models/periods/periodsModels.js";
 
@@ -77,6 +78,19 @@ export const getPeriodActiveForAllShopController = async (req, res) => {
         return res.json({
             data: response,
             message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getShopsPeriodsByPeriodIdController = async (req, res) => {
+    try {
+        const PeriodId = req.params.id;
+        const response = await getShopsPeriodsByPeriodId(PeriodId);
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Shops Periods Founds" : "Shops Periods Not Founds",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
