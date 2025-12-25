@@ -374,7 +374,10 @@ export const getArticleSpecsByIdForApp = async (id) => {
             o.name AS 'option',
             o.id AS id_option,
             ov.value AS value,
-            ov.id AS id_value
+            ov.id AS id_value,
+            asp.is_spec,
+            asp.is_measurement,
+            asp.is_highlight
         FROM articles_specs asp
         LEFT JOIN options o ON (o.id = asp.id_option)
         LEFT JOIN options_values ov ON (ov.id = asp.id_value)

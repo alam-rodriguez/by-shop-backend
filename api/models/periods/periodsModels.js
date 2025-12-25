@@ -206,7 +206,7 @@ export const getPeriodActiveForAllShop = async () => {
             LEFT JOIN currencies AS cur ON(cur.id = cb.id_currency)
             LEFT JOIN currencies AS main_cur ON(main_cur.main_currency = 1)
             LEFT JOIN payouts AS py ON (py.period_id = p.id)
-            WHERE NOW() BETWEEN p.start_date AND p.end_date
+            WHERE NOW() BETWEEN p.start_date AND p.end_date AND s.id IS NOT NULL
             GROUP BY  p.id,
                 p.start_date,
                 p.end_date,
@@ -429,10 +429,10 @@ export const getPeriodsForShop = async (shopId) => {
             -- WHERE NOW() BETWEEN p.start_date AND p.end_date
             -- WHERE cb.created_at BETWEEN p.start_date AND p.end_date AND NOT NOW() BETWEEN p.start_date AND p.end_date
             -- WHERE NOT (NOW() BETWEEN p.start_date AND p.end_date)
-             WHERE a.id_shop = ?
+            WHERE a.id_shop = ?
                  AND NOT (NOW() BETWEEN p.start_date AND p.end_date)
             -- WHERE cb.created_at BETWEEN p.start_date AND p.end_date
-            GROUP BY  p.id,
+            GROUP BY p.id,
                 p.start_date,
                 p.end_date,
                 p.status,
