@@ -1,4 +1,5 @@
 import { chatSocket } from "./chat.socket.js";
+import { deliverySocket } from "./delivery.socket.js";
 
 export const socketHandler = (io) => {
     io.on("connection", (socket) => {
@@ -6,6 +7,8 @@ export const socketHandler = (io) => {
 
         // Registrar módulo de chat
         chatSocket(io, socket);
+
+        deliverySocket(io, socket);
 
         // Aquí puedes registrar otros sockets
         // notificationsSocket(io, socket);

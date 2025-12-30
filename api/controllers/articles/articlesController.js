@@ -129,6 +129,7 @@ export const updateArticleController = async (req, res) => {
             id_currency,
             price,
             quantity,
+            additional_details,
         } = req.body;
         const article = await updateArticle(
             id,
@@ -144,7 +145,8 @@ export const updateArticleController = async (req, res) => {
             view,
             id_currency,
             price,
-            quantity
+            quantity,
+            additional_details
         );
         if (article) res.json({ message: "Article Update", data: req.body });
         else res.status(404).json({ message: "Articles not Found", data: {} });

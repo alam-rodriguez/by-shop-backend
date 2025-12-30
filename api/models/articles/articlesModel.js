@@ -74,10 +74,11 @@ export const updateArticle = async (
     view,
     id_currency,
     price,
-    quantity
+    quantity,
+    additional_details
 ) => {
     const [rows] = await connection.execute(
-        `UPDATE articles SET name = ?, description = ?, slug = ?, main_image = ?, id_direct_category = ?, id_indirect_category = ?, id_model = ?, id_payment_method = ?, status = ?, view = ?, id_currency = ?, price = ?, quantity = ? WHERE id = ?
+        `UPDATE articles SET name = ?, description = ?, slug = ?, main_image = ?, id_direct_category = ?, id_indirect_category = ?, id_model = ?, id_payment_method = ?, status = ?, view = ?, id_currency = ?, price = ?, quantity = ?, additional_details = ? WHERE id = ?
     `,
         [
             name,
@@ -93,6 +94,7 @@ export const updateArticle = async (
             id_currency,
             price,
             quantity,
+            additional_details,
             id,
         ]
     );
@@ -217,7 +219,8 @@ export const getArticleByIdForApp = async (id) => {
             JSON_OBJECT(
                 'exchange_rate', cu.exchange_rate,
                 'iso_code', cu.iso_code
-            ) AS currency
+            ) AS currency,
+            b.id AS id_brand
             -- (
             --     CASE WHEN EXISTS (SELECT id FROM offers_articles oa WHERE oa.id_article = a.id AND )
             --     THEN (SELECT percent_discount FROM offers_articles oa WHERE oa.id_article = a.id LIMIT 1)
@@ -235,8 +238,10 @@ export const getArticleByIdForApp = async (id) => {
         LEFT JOIN carts c ON (c.id_article = a.id AND c.status = 5)
         LEFT JOIN carts_bought_items cbi ON (cbi.id_cart = c.id AND cbi.status = 1)
         LEFT JOIN currencies AS cu ON(cu.id = a.id_currency)
+        LEFT JOIN models AS m ON (m.id = a.id_model)
+        LEFT JOIN brands AS b ON (b.id = m.id_brand)
         WHERE a.id = '${id}'
-        GROUP BY a.id
+        GROUP BY a.id;
     `);
     return rows;
 };
@@ -265,6 +270,58 @@ export const getArticleByIdForApp = async (id) => {
 //     return rows;
 // };
 
+// export const getArticleOffer = async (id) => {
+//     const [rows] = await connection.execute(
+//         `SELECT *
+//         FROM (
+//             -- 1. Oferta del artículo
+//             SELECT o.*, 1 AS prioridad
+//             FROM offers_articles oa
+//             JOIN offers o ON o.id = oa.id_offer
+//             WHERE oa.id_article = ?
+//             AND o.status = 1
+//             AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+//             UNION ALL
+
+//             -- 2. Oferta de categoría directa
+//             SELECT o.*, 2 AS prioridad
+//             FROM articles a
+//             JOIN offers_categories oc ON oc.id_category = a.id_direct_category
+//             JOIN offers o ON o.id = oc.id_offer
+//             WHERE a.id = ?
+//             AND o.status = 1
+//             AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+//             UNION ALL
+
+//             -- 3. Oferta de categoría indirecta
+//             SELECT o.*, 3 AS prioridad
+//             FROM articles a
+//             JOIN offers_categories oc ON oc.id_category = a.id_indirect_category
+//             JOIN offers o ON o.id = oc.id_offer
+//             WHERE a.id = ?
+//             AND o.status = 1
+//             AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+
+//             UNION ALL
+
+//             -- 4. Oferta de categorías generales
+//             SELECT o.*, 4 AS prioridad
+//             FROM articles_general_categories agc
+//             JOIN offers_categories oc ON oc.id_category = agc.id_general_category
+//             JOIN offers o ON o.id = oc.id_offer
+//             WHERE agc.id_article = ?
+//             AND o.status = 1
+//             AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+//         ) AS ofertas
+//         ORDER BY prioridad
+//         LIMIT 1;
+//     `,
+//         [id, id, id, id]
+//     );
+//     return rows;
+// };
 export const getArticleOffer = async (id) => {
     const [rows] = await connection.execute(
         `SELECT *
@@ -272,6 +329,7 @@ export const getArticleOffer = async (id) => {
             -- 1. Oferta del artículo
             SELECT o.*, 1 AS prioridad
             FROM offers_articles oa
+            JOIN articles a ON a.id = oa.id_article 
             JOIN offers o ON o.id = oa.id_offer
             WHERE oa.id_article = ?
             AND o.status = 1
@@ -284,36 +342,17 @@ export const getArticleOffer = async (id) => {
             FROM articles a
             JOIN offers_categories oc ON oc.id_category = a.id_direct_category
             JOIN offers o ON o.id = oc.id_offer
+            JOIN shops s ON s.id = o.shop_id
             WHERE a.id = ?
             AND o.status = 1
             AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
+            AND o.shop_id = a.id_shop
 
-            UNION ALL
-
-            -- 3. Oferta de categoría indirecta
-            SELECT o.*, 3 AS prioridad
-            FROM articles a
-            JOIN offers_categories oc ON oc.id_category = a.id_indirect_category
-            JOIN offers o ON o.id = oc.id_offer
-            WHERE a.id = ?
-            AND o.status = 1
-            AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
-
-            UNION ALL
-
-            -- 4. Oferta de categorías generales
-            SELECT o.*, 4 AS prioridad
-            FROM articles_general_categories agc
-            JOIN offers_categories oc ON oc.id_category = agc.id_general_category
-            JOIN offers o ON o.id = oc.id_offer
-            WHERE agc.id_article = ?
-            AND o.status = 1
-            AND CURRENT_DATE BETWEEN o.date_start AND o.date_end
         ) AS ofertas
         ORDER BY prioridad
         LIMIT 1;
     `,
-        [id, id, id, id]
+        [id, id]
     );
     return rows;
 };
@@ -381,7 +420,7 @@ export const getArticleSpecsByIdForApp = async (id) => {
         FROM articles_specs asp
         LEFT JOIN options o ON (o.id = asp.id_option)
         LEFT JOIN options_values ov ON (ov.id = asp.id_value)
-        WHERE asp.id_article = '${id}' AND asp.is_spec = 1
+        WHERE asp.id_article = '${id}' -- AND asp.is_spec = 1
     `);
     return rows;
 };

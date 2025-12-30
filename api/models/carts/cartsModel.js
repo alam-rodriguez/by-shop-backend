@@ -287,7 +287,11 @@ export const getCartItemsUserForBuy = async (id) => {
                 COALESCE(SUM(oa.price), 0) AS price_options,
                 cu.iso_code,
                 cu.exchange_rate,
-                (
+                JSON_OBJECT(
+                    'exchange_rate', cu.exchange_rate,
+                    'iso_code', cu.iso_code
+                ) AS currency,
+                ( 
                     SELECT JSON_OBJECT(
                         'id', o.id,
                         'name', o.name,
