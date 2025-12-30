@@ -644,3 +644,40 @@ export const getPeriodsForShop = async (shopId) => {
     );
     return rows;
 };
+
+export const getPeriodActiveForAllDeliveries = async () => {
+    const [rows] = await connection.execute(
+        `
+            	SELECT
+					-- s.id AS shop_id,
+					-- s.name AS shop_name,
+                    CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
+					p.*,
+					COUNT(DISTINCT cb.id) AS orders_count,
+                    SUM(do.price) AS delivery_total_price
+					-- COALESCE(SUM(cbi.quantity), 0) AS articles_total_quantity,
+                    -- SUM(cbi.total_price / cur.exchange_rate) AS total_amount,              -- total general del periodo
+					-- SUM((cbi.total_price - cbi.total_price_with_discount) / cur.exchange_rate) AS discount_amount,
+					-- SUM(cb.delivery_cost / cur.exchange_rate) AS delivery_amount,
+					-- SUM(cb.paypal_fee / cur.exchange_rate) AS paypal_fee_amount
+					-- main_cur.iso_code AS main_currency,
+					-- py.id AS payout_id
+				FROM periods AS p
+				LEFT JOIN carts_bought AS cb ON(cb.created_at BETWEEN p.start_date AND p.end_date)
+                INNER JOIN deliveries_orders AS do ON(do.id_cart_bouth = cb.id)
+                INNER JOIN users AS u ON(u.id = do.id_delivery)
+                GROUP BY u.id, p.id;
+				-- LEFT JOIN carts_bought_items AS cbi ON(cbi.id_cart_bought = cb.id)
+				-- LEFT JOIN carts AS c ON(c.id = cbi.id_cart)
+				-- LEFT JOIN articles AS a ON(a.id = c.id_article)
+				-- LEFT JOIN shops AS s ON(s.id = a.id_shop)
+				-- LEFT JOIN currencies AS cur ON(cur.id = cb.id_currency)
+				-- LEFT JOIN currencies AS main_cur ON(main_cur.main_currency = 1)
+				-- LEFT JOIN payouts AS py ON (py.period_id = p.id)
+				-- WHERE NOW() BETWEEN p.start_date AND p.end_date AND s.id IS NOT NULL AND s.id = a.id_shop -- AND a.id_shop = s.id -- AND cbi
+				-- GROUP BY s.id, p.id, cur.id, main_cur.id, py.id		
+        `,
+        []
+    );
+    return rows;
+};

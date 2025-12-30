@@ -2,6 +2,7 @@ import {
     createPeriod,
     createPeriodShopPayout,
     getPeriodActive,
+    getPeriodActiveForAllDeliveries,
     getPeriodActiveForAllShop,
     getPeriodActiveForShop,
     getPeriodById,
@@ -128,6 +129,18 @@ export const getPeriodsForShopController = async (req, res) => {
         return res.json({
             data: response,
             message: response.length > 0 ? "Periods Shops Founds" : "Periods Shops Not Founds",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodActiveForAllDeliveriesController = async (req, res) => {
+    try {
+        const response = await getPeriodActiveForAllDeliveries();
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
