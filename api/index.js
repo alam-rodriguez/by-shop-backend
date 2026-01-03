@@ -465,9 +465,9 @@ app.post("/api/seed", async (req, res) => {
                 slug VARCHAR(255) NOT NULL,
                 description TEXT NOT NULL,
                 id_direct_category CHAR(36) NOT NULL,
-                id_indirect_category CHAR(36) NOT NULL,
+                id_indirect_category CHAR(36),
                 id_currency CHAR(36) NOT NULL,
-                id_payment_method CHAR(36) NOT NULL,
+                id_payment_method CHAR(36),
                 main_image VARCHAR(2083) NOT NULL,
                 id_model CHAR(36) NOT NULL,
                 view TINYINT NOT NULL,
@@ -1086,8 +1086,11 @@ app.post("/api/seed", async (req, res) => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             );
+        `);
+        await connection.execute(`  
+
             CREATE TABLE home_category_store (
-                id CHAR(36) PRIMARY KEY,
+                id CHAR(36) NOT NULL PRIMARY KEY,
                 home_category_id CHAR(36) NOT NULL,
                 store_id CHAR(36) NOT NULL,
                 top TINYINT DEFAULT 1,
@@ -1132,12 +1135,16 @@ app.post("/api/seed", async (req, res) => {
                 status TINYINT DEFAULT 1,               
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+        `);
+        await connection.execute(`
             CREATE TABLE chat_participants (
                 id CHAR(36) NOT NULL PRIMARY KEY,
                 chat_id CHAR(36) NOT NULL,
                 user_id CHAR(36) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+        `);
+        await connection.execute(`
             CREATE TABLE chat_messages (
                 id CHAR(36) NOT NULL PRIMARY KEY,
                 chat_id CHAR(36) NOT NULL,
@@ -1162,6 +1169,8 @@ app.post("/api/seed", async (req, res) => {
                 total_net DECIMAL(10,2) DEFAULT 0, -- lo que se pagará a tiendas (suma de todos los payouts)
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+        `);
+        await connection.execute(`
             CREATE TABLE payouts (
                 id CHAR(36) NOT NULL PRIMARY KEY,
                 period_id CHAR(36) NOT NULL,
@@ -1173,6 +1182,8 @@ app.post("/api/seed", async (req, res) => {
                 paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago,
                 UNIQUE KEY uq_payouts_shop_period (shop_id, period_id)
             );
+        `);
+        await connection.execute(`
             CREATE TABLE delivery_payouts (
                 id CHAR(36) NOT NULL PRIMARY KEY,
                 period_id CHAR(36) NOT NULL,
