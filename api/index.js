@@ -1180,7 +1180,7 @@ app.post("/api/seed", async (req, res) => {
                 net_amount DECIMAL(10,2) NOT NULL,      -- amount - commission
                 currency_id char(36) NOT NULL,
                 paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago,
-                UNIQUE KEY uq_payouts_shop_period (shop_id, period_id)
+                CONSTRAINT uq_payouts_shop_period UNIQUE (shop_id, period_id)
             );
         `);
         await connection.execute(`
@@ -1197,7 +1197,7 @@ app.post("/api/seed", async (req, res) => {
                 paid_at DATETIME NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                UNIQUE KEY uq_driver_period (driver_id, period_id)
+                CONSTRAINT uq_driver_period UNIQUE (driver_id, period_id)
             );
         `);
 
