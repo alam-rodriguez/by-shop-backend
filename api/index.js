@@ -1179,7 +1179,7 @@ app.post("/api/seed", async (req, res) => {
                 commission DECIMAL(10,2) DEFAULT 0,     -- si quieres guardar la comisión calculada
                 net_amount DECIMAL(10,2) NOT NULL,      -- amount - commission
                 currency_id char(36) NOT NULL,
-                paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago,
+                paid_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- fecha real de pago
                 CONSTRAINT uq_payouts_shop_period UNIQUE (shop_id, period_id)
             );
         `);
