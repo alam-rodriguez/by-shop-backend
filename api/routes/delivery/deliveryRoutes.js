@@ -11,6 +11,7 @@ import {
     getDeliveryOrderByIdController,
     getDeliveryOrderExistsController,
     getDeliveryOrderPreferenceController,
+    getDeliveryOrdersByPeriodController,
     updateDeliveryOrderPreferenceController,
     updateDeliveryOrderStatusController,
 } from "../../controllers/delivery/DeliveryController.js";
@@ -27,5 +28,6 @@ router.post("/order-preference", createDeliveryOrderPreferenceController);
 router.get("/order-preference/:id_delivery/:delivery_order_id", getDeliveryOrderPreferenceController);
 router.patch("/order-preference/:id", updateDeliveryOrderPreferenceController);
 router.get("/delivery-can-get-order/:delivery_order_id/:delivery_id", checkIfDeliveryCanGetOrderController);
+router.get("/history-by-delivery-user-and-period-id/:delivery_user_id/:period_id", getDeliveryOrdersByPeriodController);
 
 export default router;

@@ -216,3 +216,51 @@ export const getDeliveryOrderById = async (id) => {
     );
     return rows;
 };
+
+export const getDeliveryOrdersByPeriod = async (deliveryUserId, periodId) => {
+    const [rows] = await connection.execute(
+        `
+      SELECT 
+        do.id,
+        do.price,
+        cb.delivery_cost,
+        cb.delivery_distance,
+        do.created_at,
+        CONCAT_WS(' ', u.first_name, u.last_name) AS nombre_cliente,
+        COUNT(DISTINCT cbi.id) AS count_articles,
+        s.name AS shop_name,
+        CASE 
+            WHEN pm.require_image = 1 OR pm.bank_name IS NOT NULL OR pm.bank_account IS NOT NULL OR pm.is_paypal_method = 1 THEN 0
+            ELSE 1
+        END AS must_pay,
+        (cb.total + cb.paypal_fee + cb.delivery_cost - cb.total_discount) AS total_price,
+        dop.status AS delivery_order_preference_status,
+        JSON_OBJECT(
+          'iso_code', c.iso_code,
+          'exchange_rate', c.exchange_rate,
+          'name', c.name,
+          'main_currency', c.main_currency
+        ) AS 'currency'
+      FROM periods AS p
+      LEFT JOIN carts_bought AS cb ON(cb.created_at BETWEEN p.start_date AND p.end_date)
+      INNER JOIN deliveries_orders AS do ON(do.id_cart_bouth = cb.id)
+      -- INNER JOIN deliveries_orders AS do ON(do.created_at BETWEEN p.start_date AND p.end_date)
+      -- LEFT JOIN carts_bought AS cb ON (cb.id = do.id_cart_bouth) 
+      LEFT JOIN carts_bought_items AS cbi ON (cbi.id_cart_bought = cb.id)
+      LEFT JOIN users AS u ON (u.id = cb.id_user)
+      LEFT JOIN shops AS s ON(s.id = cb.id_shop_for_address)
+      LEFT JOIN payment_methods AS pm ON(pm.id = cb.id_pay_method)
+      LEFT JOIN currencies AS c ON(c.id = cb.id_currency)
+      -- LEFT JOIN delivery_order_preferences AS dop ON(dop.delivery_order_id = do.id)
+      LEFT JOIN (
+        SELECT delivery_order_id, MAX(status) AS status
+        FROM delivery_order_preferences
+        GROUP BY delivery_order_id
+      ) AS dop ON dop.delivery_order_id = do.id
+      WHERE do.id_delivery = ? AND do.status = 2 AND p.id = ?
+      GROUP BY do.id, pm.require_image, pm.bank_name, pm.bank_account, pm.is_paypal_method, dop.status
+    `,
+        [deliveryUserId, periodId]
+    );
+    return rows;
+};

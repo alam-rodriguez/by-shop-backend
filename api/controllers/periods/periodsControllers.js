@@ -6,7 +6,9 @@ import {
     getPeriodActiveForAllShop,
     getPeriodActiveForShop,
     getPeriodById,
+    getPeriodByIdAndDeliveryId,
     getPeriods,
+    getPeriodsForDelivery,
     getPeriodsForShop,
     getShopsPeriodActive,
     getShopsPeriodsByPeriodId,
@@ -141,6 +143,32 @@ export const getPeriodActiveForAllDeliveriesController = async (req, res) => {
         return res.json({
             data: response,
             message: response.length > 0 ? "Period Active Found" : "Period Active Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodsForDeliveryController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const response = await getPeriodsForDelivery(id);
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Periods Deliviries Found" : "Periods Deliviries Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getPeriodByIdAndDeliveryIdController = async (req, res) => {
+    try {
+        const { period_id: periodId, delivery_id: deliveryId } = req.params;
+        const response = await getPeriodByIdAndDeliveryId(deliveryId, periodId);
+        return res.json({
+            data: response.length > 0 ? response[0] : null,
+            message: response.length > 0 ? "Periods Deliviries Found" : "Periods Deliviries Not Found",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });

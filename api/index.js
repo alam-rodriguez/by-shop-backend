@@ -111,6 +111,7 @@ import webPushNotification from "./routes/web-push/webPushRoutes.js";
 import advertisementsRoutes from "./routes/advertisements/advertisementsRoutes.js";
 import chatsRoutes from "./routes/chats/chatsRoutes.js";
 import periodsRoutes from "./routes/periods/periodsRoutes.js";
+import applicationRoutes from "./routes/applications/applicationsRoutes.js";
 
 import { socketHandler } from "./sockets/index.js";
 
@@ -235,6 +236,9 @@ app.use("/api/chats", chatsRoutes);
 
 // Periods
 app.use("/api/periods", periodsRoutes);
+
+// Periods
+app.use("/api/applications", applicationRoutes);
 
 app.get("/api/exist", async (req, res) => {
     try {
@@ -1169,16 +1173,58 @@ app.post("/api/seed", async (req, res) => {
                 paid_at DATETIME DEFAULT CURRENT_TIMESTAMP -- fecha real de pago,
                 UNIQUE KEY uq_payouts_shop_period (shop_id, period_id)
             );
-            -- CREATE TABLE delivery_payouts (
-            --     id INT AUTO_INCREMENT PRIMARY KEY,
-            --     period_id INT NOT NULL,
-            --     driver_id INT NOT NULL,
-            --     orders_count INT DEFAULT 0,
-            --     gross_amount DECIMAL(10,2),  -- sum(delivery_cost)
-            --     status ENUM('pending','paid') DEFAULT 'pending',
-            --     paid_at DATETIME NULL,
-            --     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            -- );
+            CREATE TABLE delivery_payouts (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                period_id CHAR(36) NOT NULL,
+                driver_id CHAR(36) NOT NULL,
+                orders_count INT NOT NULL DEFAULT 0,
+                gross_amount DECIMAL(10,2) NOT NULL,  -- sum(delivery_cost)
+                commission DECIMAL(10,2) NOT NULL DEFAULT 0,
+                net_amount DECIMAL(10,2) NOT NULL,
+                status ENUM('pending','paid','canceled') DEFAULT 'pending',
+                currency_id char(36) NOT NULL,
+                paid_at DATETIME NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_driver_period (driver_id, period_id)
+            );
+        `);
+
+        await connection.execute(`
+            CREATE TABLE delivery_applications (
+                id CHAR(36) NOT NULL PRIMARY KEY,
+
+                user_id CHAR(36) NOT NULL,
+                full_name VARCHAR(100) NOT NULL,
+                dni_number VARCHAR(20) NOT NULL,
+                phone_number VARCHAR(15) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+
+                vehicle_type ENUM('motorcycle', 'car', 'bicycle') NOT NULL,
+                vehicle_brand VARCHAR(50) NOT NULL,
+                vehicle_model VARCHAR(50) NOT NULL,
+                vehicle_plate VARCHAR(20) NOT NULL,
+
+                country_id CHAR(36) NOT NULL,
+                province_id CHAR(36) NOT NULL,
+                municipality_id CHAR(36) NOT NULL,
+                neighborhood_id CHAR(36) NOT NULL,
+
+                address_details VARCHAR(255) NOT NULL,
+
+                -- Se almacenan como URL o path (aunque el validador permita archivo)
+                image_from_dni VARCHAR(255) NOT NULL,
+                image_back_dni VARCHAR(255) NOT NULL,
+                image_plate VARCHAR(255) NOT NULL,
+
+                has_license TINYINT NOT NULL DEFAULT 1,
+                has_insurance TINYINT NOT NULL DEFAULT 0,
+
+                status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
         `);
 
         res.send("Base de datos creada");

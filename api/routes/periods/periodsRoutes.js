@@ -14,7 +14,10 @@ import {
     getPeriodByIdController,
     getShopsPeriodsByPeriodIdController,
     getPeriodActiveForAllDeliveriesController,
+    getPeriodsForDeliveryController,
+    getPeriodByIdAndDeliveryIdController,
 } from "../../controllers/periods/periodsControllers.js";
+import { createPeriodDeliveryPayoutController } from "../../controllers/periods/periodsDeliveriesController.js";
 // import {
 //     createSearchHistoryController,
 //     getSearchHistoryByIdUserController,
@@ -35,6 +38,9 @@ router.get("/:id", getPeriodByIdController);
 router.get("/:id/shops", getShopsPeriodsByPeriodIdController);
 
 router.get("/active/all-deliveries", getPeriodActiveForAllDeliveriesController);
+router.get("/for-delivery/:id", getPeriodsForDeliveryController);
+router.get("/:period_id/delivery/:delivery_id", getPeriodByIdAndDeliveryIdController);
+router.post("/payouts/deliveries", createPeriodDeliveryPayoutController);
 
 // router.patch("/update-status/:id", updateSearchHistoryStatusController);
 

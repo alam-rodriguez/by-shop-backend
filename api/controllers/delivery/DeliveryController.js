@@ -6,6 +6,7 @@ import {
     getDeliveryOrderById,
     getDeliveryOrderExists,
     getDeliveryOrderPreference,
+    getDeliveryOrdersByPeriod,
     updateDeliveryOrderDeliveryId,
     updateDeliveryOrderPreference,
     updateDeliveryOrderStatus,
@@ -143,6 +144,19 @@ export const checkIfDeliveryCanGetOrderController = async (req, res) => {
             return res.json({ message: "Delivery Cannot Get Order", data: req.body, canGetOrder: false, deliveryId: idUserDeliveryOrder });
 
         return res.json({ message: "Delivery Can Get Order", data: req.body, canGetOrder: true, deliveryId: idUserDeliveryOrder });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getDeliveryOrdersByPeriodController = async (req, res) => {
+    try {
+        const { delivery_user_id: deliveryUserId, period_id: periodId } = req.params;
+        const response = await getDeliveryOrdersByPeriod(deliveryUserId, periodId);
+        return res.json({
+            data: response,
+            message: response.length > 0 ? "Periods Deliviries Found" : "Periods Deliviries Not Found",
+        });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
