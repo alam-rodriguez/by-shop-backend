@@ -60,6 +60,7 @@ export const createShopController = async (req, res) => {
             phone_number,
             latitude,
             longitude,
+            plan_id,
             status,
         } = req.body;
         const shop = await createShop(
@@ -80,6 +81,7 @@ export const createShopController = async (req, res) => {
             phone_number,
             latitude,
             longitude,
+            plan_id,
             status
         );
         if (shop == 1) res.status(201).json({ data: req.body, message: "Shop Created" });

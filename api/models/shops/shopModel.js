@@ -75,6 +75,7 @@ export const createShop = async (
     phone_number,
     latitude,
     longitude,
+    plan_id,
     status
 ) => {
     const [result] = await connection.execute(
@@ -95,8 +96,9 @@ export const createShop = async (
     phone_number,
     latitude,
     longitude,
+    plan_id,
     status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             id,
             name,
@@ -115,6 +117,7 @@ export const createShop = async (
             phone_number,
             latitude,
             longitude,
+            plan_id,
             status,
         ]
     );
