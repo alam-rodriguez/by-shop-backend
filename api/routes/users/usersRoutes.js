@@ -30,11 +30,12 @@ import {
     updateUserAddressController,
     userAddressCanBePreferredController,
 } from "../../controllers/users/usersAddressesController.js";
-import { createUserTypeController, getUsersTypesController } from "../../controllers/users/usersTypesController.js";
+import { createUserTypeController, getUsersTypesController, getUserTypeByNameController } from "../../controllers/users/usersTypesController.js";
 
 // Types Users
 router.get("/types", getUsersTypesController);
 router.post("/types", createUserTypeController);
+router.get("/types/by-name/:name", getUserTypeByNameController);
 
 router.get("/get-user-currency-or-main-currency", getUserCurrencyOrMainCurrency);
 

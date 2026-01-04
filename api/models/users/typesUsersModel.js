@@ -14,3 +14,8 @@ export const createUserType = async (id, name, description, status) => {
     ]);
     return rows.affectedRows > 0;
 };
+
+export const getUserTypeByName = async (name) => {
+    const [rows] = await connection.execute("SELECT * FROM user_types WHERE name = ?", [name]);
+    return rows;
+};

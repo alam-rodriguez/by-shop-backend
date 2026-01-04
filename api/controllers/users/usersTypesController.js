@@ -1,4 +1,4 @@
-import { createUserType, getUsersTypes } from "../../models/users/typesUsersModel.js";
+import { createUserType, getUsersTypes, getUserTypeByName } from "../../models/users/typesUsersModel.js";
 
 export const getUsersTypesController = async (req, res) => {
     try {
@@ -16,6 +16,16 @@ export const createUserTypeController = async (req, res) => {
         const result = await createUserType(id, name, description, status);
         if (result) res.status(201).json({ data: req.body, message: "Users Types Created" });
         else res.json({ data: req.body, message: "Users Types Not Created" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getUserTypeByNameController = async (req, res) => {
+    try {
+        const name = req.params.name;
+        const response = await getUserTypeByName(name);
+        return res.json({ data: response.length > 0 ? response[0] : null, message: response.length > 0 ? "User Type found" : "User Type not found" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
