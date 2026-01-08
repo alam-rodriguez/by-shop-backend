@@ -91,7 +91,7 @@ export const createDeliveryApplication = async (
 export const getDeliveryApplications = async (userId) => {
     const [rows] = await connection.execute(
         `
-            SELECT * FROM delivery_applications WHERE user_id = ?
+            SELECT * FROM delivery_applications WHERE user_id = ? ORDER BY created_at DESC
         `,
         [userId]
     );
@@ -104,6 +104,15 @@ export const getDeliveryApplicationByApplicationId = async (id) => {
             SELECT * FROM delivery_applications WHERE id = ?
         `,
         [id]
+    );
+    return rows;
+};
+
+export const getAllDeliveryApplications = async () => {
+    const [rows] = await connection.execute(
+        `
+            SELECT * FROM delivery_applications ORDER BY created_at DESC
+        `
     );
     return rows;
 };

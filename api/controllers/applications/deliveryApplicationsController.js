@@ -1,5 +1,6 @@
 import {
     createDeliveryApplication,
+    getAllDeliveryApplications,
     getDeliveryApplicationByApplicationId,
     getDeliveryApplications,
 } from "../../models/applications/deliveryApplicationsModel.js";
@@ -78,6 +79,18 @@ export const getDeliveryApplicationByApplicationIdController = async (req, res) 
         return res.json({
             data: response.length > 0 ? response[0] : null,
             message: response.length > 0 ? "Delivery Application Found" : "Delivery Application Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getAllDeliveryApplicationsController = async (req, res) => {
+    try {
+        const response = await getAllDeliveryApplications();
+        return res.json({
+            data: response.length > 0 ? response : null,
+            message: response.length > 0 ? "Delivery Applications Found" : "Delivery Applications Not Found",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
