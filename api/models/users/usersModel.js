@@ -277,3 +277,20 @@ export const updateUserTypeId = async (idUser, userTypeId) => {
     const [rows] = await connection.execute(`UPDATE users SET user_type_id = ? WHERE id = ?`, [userTypeId, idUser]);
     return rows.affectedRows > 0;
 };
+
+export const getUsersShop = async (shopId) => {
+    const [rows] = await connection.execute("SELECT * FROM users WHERE shop_id = ?", [shopId]);
+    return rows;
+};
+
+export const getUserByEmail = async (email) => {
+    const [rows] = await connection.execute(
+        `
+        SELECT 
+            *
+        FROM users 
+        WHERE email = ?`,
+        [email]
+    );
+    return rows;
+};

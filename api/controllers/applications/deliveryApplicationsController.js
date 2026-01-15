@@ -3,6 +3,7 @@ import {
     getAllDeliveryApplications,
     getDeliveryApplicationByApplicationId,
     getDeliveryApplications,
+    updateStatusDeliveryApplication,
 } from "../../models/applications/deliveryApplicationsModel.js";
 
 export const createDeliveryApplicationController = async (req, res) => {
@@ -91,6 +92,20 @@ export const getAllDeliveryApplicationsController = async (req, res) => {
         return res.json({
             data: response.length > 0 ? response : null,
             message: response.length > 0 ? "Delivery Applications Found" : "Delivery Applications Not Found",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const updateStatusDeliveryApplicationController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const status = req.body.status;
+        const response = await updateStatusDeliveryApplication(id, status);
+        return res.json({
+            data: null,
+            message: response ? "Delivery Application Status Updated" : "Delivery Application Status Not Updated",
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });

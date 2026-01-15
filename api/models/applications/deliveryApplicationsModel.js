@@ -116,3 +116,8 @@ export const getAllDeliveryApplications = async () => {
     );
     return rows;
 };
+
+export const updateStatusDeliveryApplication = async (id, status) => {
+    const [rows] = await connection.execute(`UPDATE delivery_applications SET status = ? WHERE id = ?`, [status, id]);
+    return rows.affectedRows > 0;
+};

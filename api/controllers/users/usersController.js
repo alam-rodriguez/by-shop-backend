@@ -5,9 +5,11 @@ import {
     createUser,
     createUserAddress,
     createUserShopAdmin,
+    getUserByEmail,
     getUserById,
     getUsers,
     getUserShop,
+    getUsersShop,
     setUserShop,
     shopHasAdmin,
     updateUser,
@@ -331,6 +333,31 @@ export const updateUserTypeIdController = async (req, res) => {
         const result = await updateUserTypeId(idUser, userTypeId);
         if (result) res.json({ data: req.body, message: "user Type Id was changed" });
         else res.json({ data: req.body, message: "user Type Id was not changed" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getUsersShopController = async (req, res) => {
+    try {
+        const shopId = req.params.id;
+        const response = await getUsersShop(shopId);
+        return res.json({
+            data: response.length > 0 ? response : null,
+            message: response.length > 0 ? "Users Shop founds" : "Users Shop Not founds",
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getUserByEmailController = async (req, res) => {
+    try {
+        const email = req.params.email;
+        const response = await getUserByEmail(email);
+        return res.json({ data: response.length > 0 ? response[0] : null, message: response.length > 0 ? "User found" : "User Not Found" });
+        if (user) res.json({ data: user, message: "User found" });
+        else res.json({ data: [], message: "User Not found" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

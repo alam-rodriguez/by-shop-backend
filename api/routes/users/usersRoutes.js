@@ -9,10 +9,12 @@ import {
     createUserController,
     createUserShopAdminController,
     createUserShopSubadminController,
+    getUserByEmailController,
     getUserByIdController,
     getUserCurrencyOrMainCurrency,
     getUsersController,
     getUserShopController,
+    getUsersShopController,
     setUserShopController,
     updateUserController,
     updateUserEmailVerifiedController,
@@ -40,7 +42,9 @@ router.get("/types/by-name/:name", getUserTypeByNameController);
 router.get("/get-user-currency-or-main-currency", getUserCurrencyOrMainCurrency);
 
 router.get("/", getUsersController);
+router.get("/shops/:id", getUsersShopController);
 router.get("/:id", getUserByIdController);
+router.get("/email/:email", getUserByEmailController);
 router.post("/", createUserController);
 router.put("/:id", updateUserController);
 router.patch("/change-type/:id", changeUserTypeController);
