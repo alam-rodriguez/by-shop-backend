@@ -26,7 +26,7 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./byshop-backend   # ajusta según tu estructura
+          context: .   # ajusta según tu estructura
           push: true
           tags: ghcr.io/alam-rodriguez/byshop-backend:latest
 
