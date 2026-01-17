@@ -167,7 +167,7 @@ export const createUserAddressController = async (req, res) => {
             neighborhood_id,
             phone_number,
             province_id,
-            street
+            street,
         );
         if (userAddress) res.status(201).json({ data: req.body, message: "User Address Created" });
         else res.json({ data: {}, message: "User Address Not Created" });
@@ -356,8 +356,6 @@ export const getUserByEmailController = async (req, res) => {
         const email = req.params.email;
         const response = await getUserByEmail(email);
         return res.json({ data: response.length > 0 ? response[0] : null, message: response.length > 0 ? "User found" : "User Not Found" });
-        if (user) res.json({ data: user, message: "User found" });
-        else res.json({ data: [], message: "User Not found" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }

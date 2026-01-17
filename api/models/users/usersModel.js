@@ -14,7 +14,7 @@ export const getUserById = async (id) => {
         FROM users AS u
         LEFT JOIN user_types AS ut ON (ut.id = u.user_type_id) 
         WHERE u.id = ?`,
-        [id]
+        [id],
     );
     return rows[0];
 };
@@ -23,7 +23,7 @@ export const createUser = async (id, first_names, last_names, registration_date,
     const [result] = await connection.execute(
         `INSERT INTO users(id, first_names, last_names, registration_date, type, can_buy, email, password, direction)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, first_names, last_names, registration_date, type, can_buy, email, password, direction]
+        [id, first_names, last_names, registration_date, type, can_buy, email, password, direction],
     );
     return result.affectedRows;
 };
@@ -32,7 +32,7 @@ export const createUserFromGoogle = async (id, first_name, last_name, type, can_
     const [result] = await connection.execute(
         `INSERT INTO users(id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified]
+        [id, first_name, last_name, type, can_buy, email, google_id, picture, email_verified],
     );
     return result.affectedRows;
 };
@@ -40,7 +40,7 @@ export const createUserFromGoogle = async (id, first_name, last_name, type, can_
 export const updateUser = async (first_names, last_names, type, can_buy, email, password, direction, id) => {
     const [result] = await connection.execute(
         `UPDATE users SET first_names = ?, last_names = ?, type = ?, can_buy = ?, email = ?, password = ?, direction = ? WHERE id = ?`,
-        [first_names, last_names, type, can_buy, email, password, direction, id]
+        [first_names, last_names, type, can_buy, email, password, direction, id],
     );
     return result.affectedRows > 0;
 };
@@ -150,7 +150,7 @@ export const createUserAddress = async (
     neighborhood_id,
     phone_number,
     province_id,
-    street
+    street,
 ) => {
     const [result] = await connection.execute(
         `INSERT INTO users_addresses(
@@ -181,7 +181,7 @@ export const createUserAddress = async (
             phone_number,
             province_id,
             street,
-        ]
+        ],
     );
     return result.affectedRows > 0;
 };
@@ -224,7 +224,7 @@ export const shopHasAdmin = async (id_shop) => {
             WHERE id_shop = ? AND status = 1 AND type = 1
             LIMIT 1
         `,
-        [id_shop]
+        [id_shop],
     );
     return rows[0].admins > 0;
 };
@@ -233,7 +233,7 @@ export const createUserShopAdmin = async (id, id_user, email_user, id_shop, type
     const [result] = await connection.execute(
         `INSERT INTO admin_shop(id, id_user, email_user, id_shop, type, status)
         VALUES(?, ?, ?, ?, ?, ?)`,
-        [id, id_user, email_user, id_shop, type, status]
+        [id, id_user, email_user, id_shop, type, status],
     );
     return result.affectedRows > 0;
 };
@@ -248,7 +248,7 @@ export const getUserShop = async (emailUser) => {
         WHERE adm.email_user = ? 
         LIMIT 1
     `,
-        [emailUser]
+        [emailUser],
     );
     return rows;
 };
@@ -287,10 +287,11 @@ export const getUserByEmail = async (email) => {
     const [rows] = await connection.execute(
         `
         SELECT 
-            *
-        FROM users 
-        WHERE email = ?`,
-        [email]
+            u.*
+        FROM users AS u
+        LEFT JOIN user_types AS ut ON(ut.id = u.user_type_id)
+        WHERE u.email = ? AND (ut.name IS NULL OR ut.name = "CLIENT")`,
+        [email],
     );
     return rows;
 };

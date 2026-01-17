@@ -59,7 +59,7 @@ export const getGeneralCategoriesOfArticle = async (idArticle) => {
         INNER JOIN articles_general_categories agc ON (agc.id_general_category = c.id)
         WHERE agc.id_article = ? 
     `,
-        [idArticle]
+        [idArticle],
     );
     return rows;
 };
@@ -67,21 +67,31 @@ export const getGeneralCategoriesOfArticle = async (idArticle) => {
 export const getCategoryById = async (id) => {
     const [rows] = await connection.execute(
         `
-        (SELECT id, name FROM categories WHERE id = ?)
-        UNION ALL 
-        (SELECT id, name FROM home_categories WHERE id = ?)
-        LIMIT 1;
+            SELECT * FROM categories WHERE id = ?
         `,
-        [id, id]
+        [id],
     );
     return rows;
 };
+
+// export const getCategoryById = async (id) => {
+//     const [rows] = await connection.execute(
+//         `
+//         (SELECT id, name FROM categories WHERE id = ?)
+//         UNION ALL
+//         (SELECT id, name FROM home_categories WHERE id = ?)
+//         LIMIT 1;
+//         `,
+//         [id, id]
+//     );
+//     return rows;
+// };
 
 export const createCategory = async (id, slug, type, status, name, description, image, color, view, created_date) => {
     const [rows] = await connection.execute(
         `INSERT INTO categories(id, slug, type, status, name, description, image, color, view, created_date)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [id, slug, type, status, name, description, image, color, view, created_date]
+        [id, slug, type, status, name, description, image, color, view, created_date],
     );
     return rows.affectedRows > 0;
 };
@@ -89,7 +99,7 @@ export const createCategory = async (id, slug, type, status, name, description, 
 export const updateCategory = async (id, status, name, description, image, color, view) => {
     const [rows] = await connection.execute(
         `UPDATE categories SET status = ?, name = ?, description = ?, image = ? , color = ?, view = ? WHERE id = ?`,
-        [status, name, description, image, color, view, id]
+        [status, name, description, image, color, view, id],
     );
     return rows.affectedRows > 0;
 };
@@ -236,7 +246,7 @@ export const createDepartment = async (id, slug, status, name, short_name, descr
     const [rows] = await connection.execute(
         `INSERT INTO departments(id, slug, status, name, short_name, description, image, color, view)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [id, slug, status, name, short_name, description, image, color, view]
+        [id, slug, status, name, short_name, description, image, color, view],
     );
     return rows.affectedRows > 0;
 };
@@ -244,7 +254,7 @@ export const createDepartment = async (id, slug, status, name, short_name, descr
 export const updateDepartment = async (id, name, short_name, description, slug, image, color, status, view) => {
     const [rows] = await connection.execute(
         `UPDATE departments SET name = ?, short_name = ?, description = ?, slug = ?, image = ? , color = ?, status = ?, view = ? WHERE id = ?`,
-        [name, short_name, description, slug, image, color, status, view, id]
+        [name, short_name, description, slug, image, color, status, view, id],
     );
     return rows.affectedRows > 0;
 };
@@ -253,7 +263,7 @@ export const createDirectCategoryDepartament = async (id, id_department, id_dire
     const [rows] = await connection.execute(
         `INSERT INTO directs_categories_department(id, id_department, id_direct_category, status)
         VALUES(?, ?, ?, ?);`,
-        [id, id_department, id_direct_category, status]
+        [id, id_department, id_direct_category, status],
     );
     return rows.affectedRows > 0;
 };
@@ -279,7 +289,7 @@ export const getDirectsCategoriesByIdDepartment = async (idDepartment) => {
             INNER JOIN categories c ON (c.id = dcd.id_direct_category)
             WHERE dcd.id_department = ?
         `,
-        [idDepartment]
+        [idDepartment],
     );
     return rows;
 };
