@@ -76,7 +76,7 @@ export const createShop = async (
     latitude,
     longitude,
     plan_id,
-    status
+    status,
 ) => {
     const [result] = await connection.execute(
         `INSERT INTO shops(id,
@@ -119,7 +119,7 @@ export const createShop = async (
             longitude,
             plan_id,
             status,
-        ]
+        ],
     );
     return result.affectedRows;
 };
@@ -142,7 +142,7 @@ export const updateShop = async (
     phone_number,
     latitude,
     longitude,
-    status
+    status,
 ) => {
     const [result] = await connection.execute(
         `UPDATE shops 
@@ -184,7 +184,7 @@ export const updateShop = async (
             longitude,
             status,
             id,
-        ]
+        ],
     );
     return result.affectedRows;
 };
@@ -194,17 +194,35 @@ export const updateStatusShop = async (id, status) => {
     return result.affectedRows;
 };
 
+// TODO: TRAER TOTAL DE CADA TIENDA TAMBIEN
+// export const getShopsForCart = async (idUser) => {
+//     const [rows] = await connection.execute(
+//         `
+//         SELECT
+//             s.*
+//         FROM carts AS c
+//         LEFT JOIN articles AS a ON c.id_article = a.id
+//         LEFT JOIN shops AS s ON a.id_shop = s.id
+//         WHERE c.id_user = ? AND c.status IN (1, 2) AND a.status = 1 AND a.quantity >= c.quantity
+//         GROUP BY s.id;`,
+//         [idUser],
+//     );
+//     return rows;
+// };
+
 export const getShopsForCart = async (idUser) => {
     const [rows] = await connection.execute(
         `
         SELECT 
-            s.*
+            s.*,
+            SUM(a.price * c.quantity) AS shop_total_price
         FROM carts AS c
         LEFT JOIN articles AS a ON c.id_article = a.id
         LEFT JOIN shops AS s ON a.id_shop = s.id
-        WHERE c.id_user = ? AND c.status = 1
+        -- LEFT JOIN 
+        WHERE c.id_user = ? AND c.status IN (1, 2) AND a.status = 1 AND a.quantity >= c.quantity
         GROUP BY s.id;`,
-        [idUser]
+        [idUser],
     );
     return rows;
 };
@@ -220,7 +238,7 @@ export const getShopsForCartBought = async (idCartBought) => {
         JOIN articles AS a ON(c.id_article = a.id)
         JOIN shops AS s ON(a.id_shop = s.id)
         WHERE cb.id = ?;`,
-        [idCartBought]
+        [idCartBought],
     );
     return rows;
 };

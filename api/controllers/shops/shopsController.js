@@ -82,7 +82,7 @@ export const createShopController = async (req, res) => {
             latitude,
             longitude,
             plan_id,
-            status
+            status,
         );
         if (shop == 1) res.status(201).json({ data: req.body, message: "Shop Created" });
         else res.json({ data: {}, message: "Shop Not Created" });
@@ -131,7 +131,7 @@ export const updateShopController = async (req, res) => {
             phone_number,
             latitude,
             longitude,
-            status
+            status,
         );
         if (shop == 1) res.json({ data: req.body, message: "Shop Updated" });
         else res.json({ data: {}, message: "Shop Not Found" });
