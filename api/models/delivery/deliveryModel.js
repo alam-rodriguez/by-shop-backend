@@ -65,8 +65,9 @@ export const getDeliveriesOrders = async () => {
       ) AS dop ON dop.delivery_order_id = do.id
       WHERE do.status = 1
       GROUP BY do.id, pm.require_image, pm.bank_name, pm.bank_account, pm.is_paypal_method, dop.status
+      ORDER BY do.created_at DESC
     `,
-        []
+        [],
     );
     return rows;
 };
@@ -111,7 +112,7 @@ export const getDeliveriesOrdersHistoryDeliveryUserId = async (deliveryUserId) =
       WHERE do.id_delivery = ? AND do.status = 2 
       GROUP BY do.id, pm.require_image, pm.bank_name, pm.bank_account, pm.is_paypal_method, dop.status
     `,
-        [deliveryUserId]
+        [deliveryUserId],
     );
     return rows;
 };
@@ -124,7 +125,7 @@ export const getDeliveryOrderExists = async (idCartBouth) => {
       FROM deliveries_orders 
       WHERE id_cart_bouth = ?
     `,
-        [idCartBouth]
+        [idCartBouth],
     );
     return rows.length > 0;
 };
@@ -147,7 +148,7 @@ export const getDeliveryOrderPreference = async (id_delivery, delivery_order_id)
       FROM delivery_order_preferences AS do
       WHERE id_delivery = ? AND delivery_order_id = ?
     `,
-        [id_delivery, delivery_order_id]
+        [id_delivery, delivery_order_id],
     );
     return rows;
 };
@@ -212,7 +213,7 @@ export const getDeliveryOrderById = async (id) => {
           WHERE do.id = ?
           GROUP BY do.id, pm.require_image, pm.bank_name, pm.bank_account, pm.is_paypal_method, dop.status
         `,
-        [id]
+        [id],
     );
     return rows;
 };
@@ -260,7 +261,7 @@ export const getDeliveryOrdersByPeriod = async (deliveryUserId, periodId) => {
       WHERE do.id_delivery = ? AND do.status = 2 AND p.id = ?
       GROUP BY do.id, pm.require_image, pm.bank_name, pm.bank_account, pm.is_paypal_method, dop.status
     `,
-        [deliveryUserId, periodId]
+        [deliveryUserId, periodId],
     );
     return rows;
 };

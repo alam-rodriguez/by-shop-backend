@@ -78,7 +78,7 @@ export const getPeriodById = async (id) => {
             ORDER BY p.created_at DESC 
             LIMIT 1;
         `,
-        [id]
+        [id],
     );
     return rows;
 };
@@ -145,7 +145,7 @@ export const getPeriodActiveForShop = async (shopId) => {
 			GROUP BY s.id, p.id, cur.id, main_cur.id, py.id
             LIMIT 1;
         `,
-        [shopId]
+        [shopId],
     );
     return rows;
 };
@@ -417,7 +417,7 @@ export const getPeriodActiveForAllShop = async () => {
 				WHERE NOW() BETWEEN p.start_date AND p.end_date AND s.id IS NOT NULL AND s.id = a.id_shop -- AND a.id_shop = s.id -- AND cbi
 				GROUP BY s.id, p.id, cur.id, main_cur.id, py.id		
         `,
-        []
+        [],
     );
     return rows;
 };
@@ -462,7 +462,7 @@ export const getShopsPeriodsByPeriodId = async (periodId) => {
                 py.id
             ORDER BY p.created_at DESC;
         `,
-        [periodId]
+        [periodId],
     );
     return rows;
 };
@@ -527,7 +527,7 @@ export const getShopsPeriodsByPeriodId = async (periodId) => {
 export const createPeriodShopPayout = async (id, period_id, shop_id, amount, commission, net_amount, currency_id) => {
     const [rows] = await connection.execute(
         `INSERT INTO payouts(id, period_id, shop_id, amount, commission, net_amount, currency_id) VALUES(?, ?, ?, ?, ?, ?, ?)`,
-        [id, period_id, shop_id, amount, commission, net_amount, currency_id]
+        [id, period_id, shop_id, amount, commission, net_amount, currency_id],
     );
     return rows.affectedRows > 0;
 };
@@ -641,7 +641,7 @@ export const getPeriodsForShop = async (shopId) => {
                 py.id
             ORDER BY p.created_at DESC;
         `,
-        [shopId, shopId]
+        [shopId, shopId],
     );
     return rows;
 };
@@ -682,7 +682,7 @@ export const getPeriodActiveForAllDeliveries = async () => {
 				-- WHERE NOW() BETWEEN p.start_date AND p.end_date AND s.id IS NOT NULL AND s.id = a.id_shop -- AND a.id_shop = s.id -- AND cbi
 				-- GROUP BY s.id, p.id, cur.id, main_cur.id, py.id		
         `,
-        []
+        [],
     );
     return rows;
 };
@@ -695,7 +695,8 @@ export const getPeriodsForDelivery = async (deliveryId) => {
                     CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
 					p.*,
 					COUNT(DISTINCT cb.id) AS orders_count,
-                    SUM(cb.delivery_cost / cur.exchange_rate) AS delivery_total_price,
+                    -- SUM(cb.delivery_cost / cur.exchange_rate) AS delivery_total_price,
+                    SUM(do.price) AS delivery_total_price,
 					main_cur.iso_code AS main_currency,
                     dp.id AS payout_id
 				FROM periods AS p
@@ -706,9 +707,10 @@ export const getPeriodsForDelivery = async (deliveryId) => {
 				LEFT JOIN currencies AS main_cur ON(main_cur.main_currency = 1)
                 LEFT JOIN delivery_payouts AS dp ON (dp.period_id = p.id)
                 WHERE u.id = ?
-                GROUP BY u.id, p.id, main_cur.id, dp.id;
+                GROUP BY u.id, p.id, main_cur.id, dp.id
+                ORDER BY p.created_at DESC;
         `,
-        [deliveryId]
+        [deliveryId],
     );
     return rows;
 };
@@ -721,7 +723,8 @@ export const getPeriodByIdAndDeliveryId = async (deliveryId, periodId) => {
                     CONCAT_WS(' ', u.first_name, u.last_name) AS user_name,
 					p.*,
 					COUNT(DISTINCT cb.id) AS orders_count,
-                    SUM(cb.delivery_cost / cur.exchange_rate) AS delivery_total_price,
+                    -- SUM(cb.delivery_cost / cur.exchange_rate) AS delivery_total_price,
+                    SUM(do.price) AS delivery_total_price,
 					main_cur.iso_code AS main_currency,
                     dp.id AS payout_id
 				FROM periods AS p
@@ -734,7 +737,7 @@ export const getPeriodByIdAndDeliveryId = async (deliveryId, periodId) => {
                 WHERE u.id = ? AND p.id = ?
                 GROUP BY u.id, p.id, main_cur.id, dp.id;
         `,
-        [deliveryId, periodId]
+        [deliveryId, periodId],
     );
     return rows;
 };
