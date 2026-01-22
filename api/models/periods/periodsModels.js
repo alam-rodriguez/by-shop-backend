@@ -415,7 +415,7 @@ export const getPeriodActiveForAllShop = async () => {
 				LEFT JOIN currencies AS main_cur ON(main_cur.main_currency = 1)
 				LEFT JOIN payouts AS py ON (py.period_id = p.id)
 				WHERE NOW() BETWEEN p.start_date AND p.end_date AND s.id IS NOT NULL AND s.id = a.id_shop -- AND a.id_shop = s.id -- AND cbi
-				GROUP BY s.id, p.id, cur.id, main_cur.id, py.id		
+				GROUP BY s.id, p.id, main_cur.id, py.id		
         `,
         [],
     );
