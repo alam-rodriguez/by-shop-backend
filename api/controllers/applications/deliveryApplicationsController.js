@@ -14,6 +14,7 @@ export const createDeliveryApplicationController = async (req, res) => {
             full_name,
             dni_number,
             phone_number,
+            shop_id,
             email,
             vehicle_type,
             vehicle_brand,
@@ -36,6 +37,7 @@ export const createDeliveryApplicationController = async (req, res) => {
             full_name,
             dni_number,
             phone_number,
+            shop_id,
             email,
             vehicle_type,
             vehicle_brand,
@@ -50,7 +52,7 @@ export const createDeliveryApplicationController = async (req, res) => {
             image_back_dni,
             image_plate,
             has_license,
-            has_insurance
+            has_insurance,
         );
         return res
             .status(response ? 201 : 200)

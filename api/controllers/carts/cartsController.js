@@ -8,6 +8,7 @@ import {
     getCartBought,
     getCartItemOptions,
     getCartItemsUserForBuy,
+    getCartItemsUserForBuyGroupByShop,
     getCartItemsUserSavedForLater,
     getCartUser,
     getCartUserArticlesCannotBuy,
@@ -174,7 +175,7 @@ export const createCartBuyController = async (req, res) => {
             id_currency,
             want_use_address,
             id_address_user,
-            id_shop_for_address
+            id_shop_for_address,
         );
         if (cart > 0) res.status(201).json({ data: req.body, message: "Cart Buy Created" });
         else res.json({ data: req.body, message: "Cart Buy Not Created" });
@@ -209,7 +210,7 @@ export const createCartBuyItemController = async (req, res) => {
             quantity,
             status,
             total_price,
-            total_price_with_discount
+            total_price_with_discount,
         );
         if (cart > 0) res.status(201).json({ data: req.body, message: "Cart Item Buy Created" });
         else res.json({ data: req.body, message: "Cart Item Buy Not Created" });
@@ -222,6 +223,17 @@ export const getCartItemsUserForBuyController = async (req, res) => {
     try {
         const id = req.params.id;
         const cart = await getCartItemsUserForBuy(id);
+        if (cart.length > 0) res.json({ data: cart, message: "Cart Fount" });
+        else res.json({ data: [], message: "Cart Not Fount" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getCartItemsUserForBuyGroupByShopController = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const cart = await getCartItemsUserForBuyGroupByShop(id);
         if (cart.length > 0) res.json({ data: cart, message: "Cart Fount" });
         else res.json({ data: [], message: "Cart Not Fount" });
     } catch (error) {

@@ -42,6 +42,7 @@ export const createDeliveryApplication = async (
     full_name,
     dni_number,
     phone_number,
+    shop_id,
     email,
     vehicle_type,
     vehicle_brand,
@@ -56,18 +57,19 @@ export const createDeliveryApplication = async (
     image_back_dni,
     image_plate,
     has_license,
-    has_insurance
+    has_insurance,
 ) => {
     const [rows] = await connection.execute(
         `INSERT INTO delivery_applications(
-        id, user_id, full_name, dni_number, phone_number, email, vehicle_type, vehicle_brand, vehicle_model, vehicle_plate, country_id, province_id, municipality_id, neighborhood_id, address_details, image_from_dni, image_back_dni, image_plate, has_license, has_insurance
-        ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        id, user_id, full_name, dni_number, phone_number, shop_id, email, vehicle_type, vehicle_brand, vehicle_model, vehicle_plate, country_id, province_id, municipality_id, neighborhood_id, address_details, image_from_dni, image_back_dni, image_plate, has_license, has_insurance
+        ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             id,
             user_id,
             full_name,
             dni_number,
             phone_number,
+            shop_id,
             email,
             vehicle_type,
             vehicle_brand,
@@ -83,7 +85,7 @@ export const createDeliveryApplication = async (
             image_plate,
             has_license,
             has_insurance,
-        ]
+        ],
     );
     return rows.affectedRows > 0;
 };
@@ -93,7 +95,7 @@ export const getDeliveryApplications = async (userId) => {
         `
             SELECT * FROM delivery_applications WHERE user_id = ? ORDER BY created_at DESC
         `,
-        [userId]
+        [userId],
     );
     return rows;
 };
@@ -103,7 +105,7 @@ export const getDeliveryApplicationByApplicationId = async (id) => {
         `
             SELECT * FROM delivery_applications WHERE id = ?
         `,
-        [id]
+        [id],
     );
     return rows;
 };
@@ -112,7 +114,7 @@ export const getAllDeliveryApplications = async () => {
     const [rows] = await connection.execute(
         `
             SELECT * FROM delivery_applications ORDER BY created_at DESC
-        `
+        `,
     );
     return rows;
 };

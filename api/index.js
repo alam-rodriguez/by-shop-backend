@@ -84,7 +84,7 @@ app.use(
             "https://byshop.online",
         ],
         credentials: true,
-    })
+    }),
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -1227,6 +1227,7 @@ app.post("/api/seed", async (req, res) => {
                 image_from_dni VARCHAR(255) NOT NULL,
                 image_back_dni VARCHAR(255) NOT NULL,
                 image_plate VARCHAR(255) NOT NULL,
+                shop_id CHAR(36),
 
                 has_license TINYINT NOT NULL DEFAULT 1,
                 has_insurance TINYINT NOT NULL DEFAULT 0,
