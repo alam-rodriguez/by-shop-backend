@@ -934,7 +934,8 @@ app.post("/api/seed", async (req, res) => {
                 id CHAR(36) NOT NULL PRIMARY KEY,
                 id_delivery CHAR(36),
                 id_cart_bouth CHAR(36) NOT NULL,
-                price DECIMAL(10, 2) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL, 
+                shop_id CHAR(36),
                 status TINYINT DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

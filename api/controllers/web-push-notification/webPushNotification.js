@@ -5,6 +5,7 @@ import webpush from "web-push";
 import {
     createUserPushNotificationSubscription,
     getClientSubscriptions,
+    getShopUsersDeliveriesSubscriptions,
     getUsersDeliveriesSubscriptions,
     getUsersPushNotificationSubscriptions,
     getUsersSubAdminAndAdminShopsSubscriptions,
@@ -90,14 +91,14 @@ export const sendAdminShopsPushNotificationsForNewOrderController = async (req, 
 
         if (usersSupportAndDevSubscriptions.length > 0) {
             const sendPromises = usersSupportAndDevSubscriptions.map((sub) =>
-                webpush.sendNotification(sub, payload).catch((err) => console.error(err))
+                webpush.sendNotification(sub, payload).catch((err) => console.error(err)),
             );
 
             await Promise.all(sendPromises);
         }
         if (usersSubAdminAndAdminShopsSubscription.length > 0) {
             const sendPromises = usersSubAdminAndAdminShopsSubscription.map((sub) =>
-                webpush.sendNotification(sub, payload).catch((err) => console.error(err))
+                webpush.sendNotification(sub, payload).catch((err) => console.error(err)),
             );
             await Promise.all(sendPromises);
         }
@@ -147,6 +148,30 @@ export const sendPushNotificationToDeliveriesController = async (req, res) => {
 
         console.log(usersDeliveriesSubscriptions);
         console.log("usersDeliveriesSubscriptions");
+
+        const { title, body } = req.body;
+
+        const payload = JSON.stringify({
+            title: title ?? "Hay un nuevo delivery",
+            body: body ?? "Hay un nuevo delivery, adelantate a los demas",
+        });
+
+        if (usersDeliveriesSubscriptions.length > 0) {
+            const sendPromises = usersDeliveriesSubscriptions.map((sub) => webpush.sendNotification(sub, payload).catch((err) => console.error(err)));
+
+            await Promise.all(sendPromises);
+            return res.status(201).json({ data: [], message: "Notificaciones enviadas" });
+        } else return res.json({ data: [], message: "Users Push Notifications Subscriptions Not Founds" });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const sendPushNotificationToShopDeliveriesController = async (req, res) => {
+    try {
+        const shopId = req.params.shop_id;
+
+        const usersDeliveriesSubscriptions = await getShopUsersDeliveriesSubscriptions(shopId);
 
         const { title, body } = req.body;
 

@@ -2,6 +2,7 @@ import {
     createDeliveryOrder,
     createDeliveryOrderPreference,
     getDeliveriesOrders,
+    getDeliveriesOrdersByShops,
     getDeliveriesOrdersHistoryDeliveryUserId,
     getDeliveryOrderById,
     getDeliveryOrderExists,
@@ -14,8 +15,8 @@ import {
 
 export const createDeliveryOrderController = async (req, res) => {
     try {
-        const { id, id_delivery, id_cart_bouth, price, status } = req.body;
-        const result = await createDeliveryOrder(id, id_delivery, id_cart_bouth, price, status);
+        const { id, id_delivery, id_cart_bouth, price, shop_id, status } = req.body;
+        const result = await createDeliveryOrder(id, id_delivery, id_cart_bouth, price, shop_id, status);
         if (result) return res.status(201).json({ message: "Delivery Order Created", data: req.body });
         else return res.json({ message: "Delivery Order Not Created", data: req.body });
     } catch (error) {
@@ -26,6 +27,17 @@ export const createDeliveryOrderController = async (req, res) => {
 export const getDeliveriesOrdersController = async (req, res) => {
     try {
         const deliveriesOrders = await getDeliveriesOrders();
+        if (deliveriesOrders.length > 0) return res.status(201).json({ message: "Deliveries Orders Founds", data: deliveriesOrders });
+        else return res.json({ message: "Delivery Order Not Created", data: [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+export const getDeliveriesOrdersByShopsController = async (req, res) => {
+    try {
+        const shopId = req.params.shop_id;
+        const deliveriesOrders = await getDeliveriesOrdersByShops(shopId);
         if (deliveriesOrders.length > 0) return res.status(201).json({ message: "Deliveries Orders Founds", data: deliveriesOrders });
         else return res.json({ message: "Delivery Order Not Created", data: [] });
     } catch (error) {

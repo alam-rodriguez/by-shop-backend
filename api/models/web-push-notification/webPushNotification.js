@@ -7,7 +7,7 @@ export const userDeviceHasPushNotificationSubscription = async (user_id, endpoin
             id 
         FROM user_push_notifications_subscriptions 
         WHERE user_id = ? AND endpoint = ? AND p256dh = ? AND auth = ?`,
-        [user_id, endpoint, p256dh, auth]
+        [user_id, endpoint, p256dh, auth],
     );
     return result.length > 0;
 };
@@ -16,7 +16,7 @@ export const createUserPushNotificationSubscription = async (id, user_id, endpoi
     const [result] = await connection.execute(
         `INSERT INTO user_push_notifications_subscriptions(id, user_id, endpoint, p256dh, auth, user_agent, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, user_id, endpoint, p256dh, auth, user_agent, status]
+        [id, user_id, endpoint, p256dh, auth, user_agent, status],
     );
     return result.affectedRows;
 };
@@ -38,7 +38,7 @@ export const getUsersSupportAndDevSubscriptions = async () => {
         INNER JOIN users AS u ON (u.id = us.user_id)
         INNER JOIN user_types AS ut ON(ut.id = u.user_type_id)
         WHERE us.status = 1 AND ut.name IN('SUPPORT', 'DEV')
-        `
+        `,
     );
     return result;
 };
@@ -62,7 +62,7 @@ export const getUsersSubAdminAndAdminShopsSubscriptions = async (idCartBought) =
         LEFT JOIN user_types AS ut ON(ut.id = u.user_type_id)
         WHERE cb.id = ? AND us.status = 1 AND ut.name IN('SUB-ADMIN-SHOP', 'ADMIN-SHOP')
         `,
-        [idCartBought]
+        [idCartBought],
     );
     return result;
 };
@@ -78,7 +78,7 @@ export const getClientSubscriptions = async (userId) => {
         FROM user_push_notifications_subscriptions AS us
         WHERE us.user_id = ? AND us.status = 1
         `,
-        [userId]
+        [userId],
     );
     return result;
 };
@@ -95,7 +95,25 @@ export const getUsersDeliveriesSubscriptions = async () => {
         INNER JOIN users AS u ON (u.id = us.user_id)
         INNER JOIN user_types AS ut ON(ut.id = u.user_type_id)
         WHERE us.status = 1 AND ut.name = 'DELIVERY'
-        `
+        `,
+    );
+    return result;
+};
+
+export const getShopUsersDeliveriesSubscriptions = async (shopId) => {
+    const [result] = await connection.execute(
+        `SELECT 
+            us.endpoint AS 'endpoint',
+            JSON_OBJECT(
+                'p256dh', us.p256dh,
+                'auth', us.auth
+            ) AS 'keys'
+        FROM user_push_notifications_subscriptions AS us
+        INNER JOIN users AS u ON (u.id = us.user_id)
+        INNER JOIN user_types AS ut ON(ut.id = u.user_type_id)
+        WHERE us.status = 1 AND ut.name = 'DELIVERY' AND u.shop_id IS NULL OR u.shop_id = ? 
+        `,
+        [shopId],
     );
     return result;
 };

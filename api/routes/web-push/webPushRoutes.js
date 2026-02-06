@@ -6,6 +6,7 @@ import {
     sendAdminShopsPushNotificationsForNewOrderController,
     sendPushNotificationToClientController,
     sendPushNotificationToDeliveriesController,
+    sendPushNotificationToShopDeliveriesController,
     sendUsersPushNotificationSubscriptionsController,
 } from "../../controllers/web-push-notification/webPushNotification.js";
 
@@ -22,6 +23,7 @@ router.post("/send-notification", sendUsersPushNotificationSubscriptionsControll
 router.post("/send-notification-for-news-orders/:order_id", sendAdminShopsPushNotificationsForNewOrderController);
 router.post("/send-notification-client-update-status-order/:user_id", sendPushNotificationToClientController);
 router.post("/send-notification-for-new-order-to-deliveries", sendPushNotificationToDeliveriesController);
+router.post("/send-notification-for-new-order-to-shop-deliveries/:shop_id", sendPushNotificationToShopDeliveriesController);
 
 router.post("/chats/send-notification-for-new-message/:user_id", sendPushNotificationToClientController);
 

@@ -6,6 +6,7 @@ import {
     checkIfDeliveryCanGetOrderController,
     createDeliveryOrderController,
     createDeliveryOrderPreferenceController,
+    getDeliveriesOrdersByShopsController,
     getDeliveriesOrdersController,
     getDeliveriesOrdersHistoryDeliveryUserIdController,
     getDeliveryOrderByIdController,
@@ -18,6 +19,7 @@ import {
 
 router.post("/", createDeliveryOrderController);
 router.get("/", getDeliveriesOrdersController);
+router.get("/by-shop/:shop_id", getDeliveriesOrdersByShopsController);
 router.get("/:id", getDeliveryOrderByIdController);
 router.patch("/update-status/:id", updateDeliveryOrderStatusController);
 router.get("/order-exists/:id_cart_bouth", getDeliveryOrderExistsController);
