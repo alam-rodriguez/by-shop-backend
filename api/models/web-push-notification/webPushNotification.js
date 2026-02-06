@@ -111,7 +111,7 @@ export const getShopUsersDeliveriesSubscriptions = async (shopId) => {
         FROM user_push_notifications_subscriptions AS us
         INNER JOIN users AS u ON (u.id = us.user_id)
         INNER JOIN user_types AS ut ON(ut.id = u.user_type_id)
-        WHERE us.status = 1 AND ut.name = 'DELIVERY' AND u.shop_id IS NULL OR u.shop_id = ? 
+        WHERE us.status = 1 AND ut.name = 'DELIVERY' AND (u.shop_id IS NULL OR u.shop_id = ?)
         `,
         [shopId],
     );
